@@ -83,28 +83,32 @@ class Rename(FileActions):
         print(dirName[(i+1):])
         return (dirName[:i+1],dirName[(i+1):])
             
-    #Окончательный метод транститерирования имени папки
+    #Исполнительный метод, переименовывает папку и сразу возврщается на верхний уровень деерева каталогов.
+    #По чуть-чуть переименовывает папки, каждый раз начиная сначала. Если папку переименовывать не надо - идет дальше, 
+    #постепенно достигая конца файлового дерева. Если он достиг конца, то возвращает True
     def renameFolderExec(self):
         start_again = False
         for iteration in os.walk(self.path): #Главый цикл, итерирует по глубине каталогов, постепенно опускаясь вниз
             dirPath = iteration[0] # Первый кортеж с отображенем пути текущей папки
             print(dirPath)
             dirName=self.getFolderName(dirPath)
-#            print('Полный путь'+dirPath+ '     Имя текущей папки'+dirName)
             tr_dirName=self.cyrillicTranslit(dirName[1])
             if tr_dirName != dirName[1]:
                 os.rename(dirPath,(dirName[0]+tr_dirName))
                 start_again = True
                 break
         return start_again
-    
+    #Метод инициирующий цикл. До тех пор пока не достигнем конца файлового дерева, т.е. Переименовывать уже будет нечего, 
+    #прийдет время оборвать цикл. До тех пор постоянно вызываем renameFolderExec 
     def renameFolder(self):
         is_end = True
         while is_end == True:
             is_end=self.renameFolderExec()
         
+
     
-a = Rename()
-#a.rename_file()
-a.renameFolder()
-a.renameFile()
+if __name__ == "__main__":   
+    a = Rename()
+
+    a.renameFolder()
+    a.renameFile()
