@@ -1,0 +1,27 @@
+#! /usr/bin/python
+
+# To change this license header, choose License Headers in Project Properties.
+# To change this template file, choose Tools | Templates
+# and open the template in the editor.
+
+__author__ = "andrew"
+__date__ = "$20.11.2015 19:18:32$"
+
+if __name__ == "__main__":
+    
+  
+    
+    a1=[1,[21,[31,31,[41,42]]],51]
+    
+    a=[a1]
+    
+    def forvard(elem):
+#        if isinstance(elem,list):
+            for x in elem:
+                if isinstance(x,list) == False:
+                    print(x)
+
+                forvard(x)
+
+    
+    forvard(a)
