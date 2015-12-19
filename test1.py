@@ -30,19 +30,15 @@ class MouseKeybEvents():
             if lastPos == currPos and self.keyPressed == False:
                 if self.timerLock == False:
                     self.timerStart()
-                
             else:
 #                import pdb;  pdb.set_trace()
                 posTime=round(self.timerStop(),1)
                 print(lastPos,posTime)
-                #print('Хорошо не застрял на метке 21')
                 timerLock=False
                 self.resetTimer()
-                #print('Хорошо не застрял на метке 22')
-                self.event.clear()
-                self.event.set()
-                #print('Хорошо не застрял на метке 23')
-                
+                self.clearTh()
+                self.setTh()
+                self.waitTh()
                 
             lastPos=currPos
     
@@ -63,26 +59,20 @@ class MouseKeybEvents():
                 self.running = False
                 self.mustFinish = True
             elif event.Key == 'Control_L':
-                try:
-                    self.keyPressed=True
-                    #print(self.event.is_set())
-                    print(self.event.clear())
-                    self.event.wait(1.0)
-                    #print('Хорошо не застрял на метке 31')
-                    print(pyautogui.position(), ' LClick')
-                    self.event.clear()
-                    self.keyPressed=False
-                except Exception:
-                    print('Гавно однако!')
-                
+                self.keyPressed=True
+                self.clearTh()
+                print(self.resumeTh)
+                self.waitTh()
+                print(pyautogui.position(), ' LClick')
+                self.clearTh()
+                self.keyPressed=False
+
 
 #   Сей объект класса посвящен таймеру
-
 class Timer(MouseKeybEvents):
     keyPressed=False
     startTime=0
     timerLock=False
-    event=threading.Event()
     mustFinish=False
     
 #    Ставит базовую точку времени с которой начинается отсчет
@@ -103,7 +93,27 @@ class Timer(MouseKeybEvents):
     def resetTimer(self):
         self.startTime=time.time()
 
-class ThreadController(Timer):
+#Имитация стандартного класса событий, Threading.Events()       
+class Locker(MouseKeybEvents):
+    delayTh=0.07
+    resumeTh=False
+    #Заставляет текщий поток ждать пока не появиться флаг о прожолжении
+    def waitTh(self):
+        while True:
+            if self.resumeTh==False:
+                time.sleep(self.delayTh)
+            else:
+                break
+    #Поднимает флаг, поток возобновляет работу
+    def setTh(self):
+        self.resumeTh=True
+    #Сбрасывает флаг
+    def clearTh(self):
+        self.resumeTh=False
+           
+    
+
+class ThreadController(Timer,Locker):
     def createThreads(self):
         th1=threading.Thread(target=self.traceCoursor)
         th2=threading.Thread(target=self.catchKeyPress)
