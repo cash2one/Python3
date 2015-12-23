@@ -25,7 +25,7 @@ for string in f.readlines():
     subprocess.call("tar -C "+path_source+ " -cvj -f"+ zipname +" "+ spl_str[2], shell=True)
     res=subprocess.call("mv "+zipname+" "+path_afterMove ,shell=True)
     if res == 0:
-        subprocess.call("echo "+ time.strftime("%d-%m-%Y %H:%M:%S")+ "    Была сделана резервная копия файла___"+path_source+spl_str[2]+" >> "+log, shell=True)        
+        subprocess.call("echo "+ time.strftime("%d-%m-%Y %H:%M:%S")+ "    Была сделана резервная копия файла___"+path_source+" >> "+log, shell=True)        
 
 f.close()    
 

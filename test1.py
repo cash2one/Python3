@@ -6,7 +6,7 @@
 
 
 import pyautogui, time, pyxhook, threading, argparse
-
+import re
 
 class MouseKeybEvents():
     def __init__(self):
@@ -20,7 +20,7 @@ class MouseKeybEvents():
 #       Уже все приняли, дальше пошел процесс создания списка файлов по переданному параметру        
         self.action = {'write':args. write, 'read': args.read}
         
-#   Отслеживает положение курсора
+#   Отслеживает положение курсора. Начинает поток th1.
     def traceCoursor(self):
         lastPos=pyautogui.position()
         
@@ -33,7 +33,8 @@ class MouseKeybEvents():
             else:
 #                import pdb;  pdb.set_trace()
                 posTime=round(self.timerStop(),1)
-                print(lastPos,posTime)
+                
+                self.writeToFile(str(lastPos)+' '+str(posTime)+' NC')
                 timerLock=False
                 self.resetTimer()
                 self.clearTh()
@@ -41,8 +42,10 @@ class MouseKeybEvents():
                 self.waitTh()
                 
             lastPos=currPos
-    
-#   Инициализирует метод OnKeyboardEvent
+        global f
+        f.close();print('Файл успешно закрыт')
+        
+#   Инициализирует метод OnKeyboardEvent. Начинает поток th2.
     def catchKeyPress(self):
             hm = pyxhook.HookManager()
             hm.KeyDown = self.OnKeyboardEvent
@@ -63,7 +66,8 @@ class MouseKeybEvents():
                 self.clearTh()
                 print(self.resumeTh)
                 self.waitTh()
-                print(pyautogui.position(), ' LClick')
+                
+                self.writeToFile(str(pyautogui.position())+'0.1 LC')
                 self.clearTh()
                 self.keyPressed=False
 
@@ -97,7 +101,7 @@ class Timer(MouseKeybEvents):
 class Locker(MouseKeybEvents):
     delayTh=0.07
     resumeTh=False
-    #Заставляет текщий поток ждать пока не появиться флаг о прожолжении
+    #Заставляет текщий поток ждать пока не появиться флаг о продолжении
     def waitTh(self):
         while True:
             if self.resumeTh==False:
@@ -111,22 +115,41 @@ class Locker(MouseKeybEvents):
     def clearTh(self):
         self.resumeTh=False
            
-    
+class FileActions():
+    strRecLimit=50 #Предел количества значений в одной строке
+    strCounter = strRecLimit
+    #Получает строку формата "x,y,время,кнопка мыши", парсит ее на составляющие.
+    #Затем пишет в файл. По достижению strRecLimit каретка перескакивает на новую строку.
+    def writeToFile(self,string):
+        print (string)
+        global f
+        p = re.findall(r"(\w+\.+\w)|(\w+(?=,))|(\w+(?=\)))|(\w{2})",string)
+        #x-кордината, y-кордината, время простоя курсора, кнопка мыши, соответственно
+        x=(''.join(p[0])).strip();y=(''.join(p[1])).strip();time=(''.join(p[2])).strip();act=(''.join(p[3])).strip()
+        print (x+','+y+','+time+','+act+'\n')
+        if self.strCounter >0: 
+            f.write(x+','+y+','+time+','+act+';')
+            self.strCounter=self.strCounter-1
+        else:
+            f.write(x+','+y+','+time+','+act+';\n')
+            self.strCounter=self.strRecLimit
+            
+        
 
-class ThreadController(Timer,Locker):
+class ThreadController(Timer,Locker,FileActions):
     def createThreads(self):
+        global f
+        f = open('cache.txt','w')
         th1=threading.Thread(target=self.traceCoursor)
         th2=threading.Thread(target=self.catchKeyPress)
         th1.start()
         th2.start()
+        
+
 
 if __name__ == '__main__':
     a = ThreadController()
     if a.action['write']:
         a.createThreads()
+
        
-            
-    
-
-
-
