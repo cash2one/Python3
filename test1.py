@@ -66,11 +66,46 @@ class MouseKeybEvents():
                 self.clearTh()
                 print(self.resumeTh)
                 self.waitTh()
-                
                 self.writeToFile(str(pyautogui.position())+'0.1 LC')
                 self.clearTh()
                 self.keyPressed=False
-
+            elif event.Key == 'Shift_L':
+                self.keyPressed=True
+                self.clearTh()
+                self.waitTh()               
+                self.writeToFile(str(pyautogui.position())+'0.1 RC')
+                self.clearTh()
+                self.keyPressed=False
+            elif event.Key == 'Alt_L':
+                self.keyPressed=True
+                self.clearTh()
+                self.waitTh()               
+                self.writeToFile(str(pyautogui.position())+'0.1 DC')
+                self.clearTh()
+                self.keyPressed=False            
+            
+    
+    def doMouseMove(self,string):
+        try:
+            values=string.split(',')
+            print(values)
+            print(values[0],values[1])
+            pyautogui.moveTo(int(values[0]),int(values[1])) #перемщение по кординатам x,y
+            #конвертнем в integer и заменим дефолтную точку на запятую
+    #        delay=values[2].replace('.',','); delay= int(delay)
+            delay=float(values[2])
+            time.sleep(delay)
+            if values[3]=='NC':
+                pass
+            elif values[3]=='LC':
+                pyautogui.click()
+            elif values[3]=='RC':
+                pyautogui.click(button='right')
+            elif values[3]=='DC':
+                pyautogui.doubleClick() 
+                print('Ожидается DC')
+        except IndexError:
+            print ('Походу попался перевод каретки')
 
 #   Сей объект класса посвящен таймеру
 class Timer(MouseKeybEvents):
@@ -134,6 +169,15 @@ class FileActions():
             f.write(x+','+y+','+time+','+act+';\n')
             self.strCounter=self.strRecLimit
             
+    def readFromFile(self):
+        f = open('cache.txt','r')
+        for line in f:
+            devideBySemi=line.split(';')
+            for value in devideBySemi:
+                self.doMouseMove(value)
+
+        f.close();print('Файл успешно закрыт')
+            
         
 
 class ThreadController(Timer,Locker,FileActions):
@@ -151,5 +195,7 @@ if __name__ == '__main__':
     a = ThreadController()
     if a.action['write']:
         a.createThreads()
+    if a.action['read']:
+        a.readFromFile()
 
        
