@@ -20,7 +20,7 @@ class View:
         windows= Frame(self.root,width=100,heigh=100)
         windows.pack()
         self.root.title('Выбирай')
-        lb1=Label(windows,text='   Читать PDF будешь?   ',font='arial 16')
+        lb1=Label(windows,text='   Читать будешь PDF будешь?   ',font='arial 16')
         lb1.grid(row=0,column=0,columnspan=2)
         lb1=Label(windows,text='  ',font='arial 16')
         lb1.grid(row=1,column=0,columnspan=2)
