@@ -125,14 +125,19 @@ class Launch():
             print(t)
             return int(t)
     
-class Log():
-#    Путь к log файлу
-    log_file='/var/log/andrew/play_eng.log'
-#    Текст сообщения который будет записан в лог
-    message=(time.strftime("%d-%m-%Y %H:%M:%S   "))+ 'Запуск был успешный. BBC -\"English we speak\"\n'
-    
-#   Просто открывает файл и пишет туда сообщения
+class Log(PlayBBC):
+    def __init__(self):
+
+        PlayBBC.__init__(self)
+
+    #    Путь к log файлу
+        self.log_file='/var/log/andrew/play_eng.log'
+        
+    #   Просто открывает файл и пишет туда сообщения
     def writeToLogFile(self):
+#       Текст сообщения который будет записан в лог
+        self.message=(time.strftime("%d-%m-%Y %H:%M:%S   "))+ 'Запуск был успешный. BBC-\"English we speak\"   '+ self.chosenPDF[:-4] +'\"\n'
+
         f=open(self.log_file, 'a')
         f.write(self.message)
         print('Лог записан!')
@@ -141,11 +146,9 @@ class Log():
 
 if __name__ == "__main__":
 
-    play=PlayBBC()
+    play=Log()
 #   Можно указать количество повторов        
 #   play.repeats=1      
-    log=Log()
-
 #   Созданы потоки для запуска player и GUI
 #    ---------
     th1 = threading.Thread(target=play.fThStarter)
@@ -156,7 +159,8 @@ if __name__ == "__main__":
     th1.join()
     th2.join()
 #   ---------
-    
+
+
 #   Пишем в лог результаты 
-    log.writeToLogFile()
+    play.writeToLogFile()
 

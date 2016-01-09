@@ -4,13 +4,19 @@
 #        by Andrew Sotniokv aka Luca Brasi, 
 #        e-mail: andruha.sota@mail.ru
 #        --------------
+    
+#    Внешний стартер. Хорош тем что запускает приложения которые имеют X Window.
+    
 
 import subprocess, time
 
 class Launch():
-#    Интервал в секундах
-    interval=3600
-    start=19
+#    Интервал в секундах между запсуками приложения
+    run_interval=3600
+#    Интервал между проверкой для наступления времени инициализации 
+#    запускаемого скрипта, который указываеться в списке tasks
+    check_interval=600
+    start=18
     end=24
     
 #   Возвращает значение текущего времени. Нужно передать аргументы формата
@@ -29,19 +35,17 @@ class Launch():
             print(t)
             return int(t)
 
-__author__ = "andrew"
-__date__ = "$07.01.2016 23:12:39$"
 
 if __name__ == "__main__":
-    time.sleep(80)    
-    tasks=['play_eng.py']
+    time.sleep(240)    
+#   Пути указывать в абсолюном формате
+    tasks=['/home/andrew/bin/play_eng.py']
     lanch=Launch()
-#    lanch.start=11
     t=lanch.getTime('h')
     while t <= lanch.end:
         if t < lanch.start:
             print('Еще не вечер...')
-            time.sleep(lanch.interval)
+            time.sleep(lanch.check_interval)
             continue
         subprocess.call('python3 '+tasks[0], shell=True)
-        time.sleep(lanch.interval)
+        time.sleep(lanch.run_interval)
