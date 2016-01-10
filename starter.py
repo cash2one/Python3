@@ -43,6 +43,7 @@ if __name__ == "__main__":
     lanch=Launch()
     t=lanch.getTime('h')
     while t <= lanch.end:
+        t=lanch.getTime('h')
         if t < lanch.start:
             print('Еще не вечер...')
             time.sleep(lanch.check_interval)
