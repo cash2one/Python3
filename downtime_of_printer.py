@@ -1,14 +1,16 @@
 #! /usr/bin/python
 
-#        отступы табуляцией
+#        отступы пробелами
 #        by Andrew Sotnikov aka Luca Brasi,
 #        e-mail: andruha.sota@mail.ru
 #        --------------
+#        Определяет дефолтный принтер и смотрит сколко дней прошло
+#        с последнего момента печати. Если больше 4ех дней посылает
+#        окошко warnings, больше 7ми - critical.
 
-import os,re, time
+import os,re, time, sys
 from subprocess import *
-
-
+from PyQt4 import QtGui, QtCore
 
 # Открывает исходный файл и возващает его в реверсированном порядке.
 # Принимает аргументы: filename - путь к файлу, replace=True - заменит
@@ -100,10 +102,96 @@ class getInfo():
             doy=doy+365
         days_difference=doy-d_from_last
         print('Печать не проводилась {0} дней'.format(days_difference))
+        self.days=days_difference
 
-        return days_difference
+        # Окошко warnings
+class DrawWarning(QtGui.QWidget):
+    def __init__(self,days, parent=None,):
+        QtGui.QWidget.__init__(self, parent)
+
+        self.setGeometry(960, 540, 300, 150)
+        self.setWindowTitle('printer')
+        font=QtGui.QFont()
+        font.setPointSize(14)
+        self.setFont(font)
+
+        button_ok=QtGui.QPushButton('OK',self)
+
+        button_ok.setFixedSize(100,40)
+        self.connect(button_ok,QtCore.SIGNAL('clicked()'),QtGui.qApp,
+                     QtCore.SLOT('quit()'))
+        label=QtGui.QLabel('You don\'t print for a {0} '
+              'days'.format(days))
+        label2=QtGui.QLabel()
+        pixmap=QtGui.QPixmap('/usr/share/icons/gnome/48x48/status/'
+                         'messagebox_warning.png')
+        label2.setPixmap(pixmap)
+
+        grid=QtGui.QGridLayout()
+        grid.setSpacing(10)
+        grid.setVerticalSpacing(20)
+        grid.addWidget(label2,0,0,QtCore.Qt.AlignHCenter)
+        grid.addWidget(label,1,0,QtCore.Qt.AlignHCenter)
+        grid.addWidget(button_ok,2,0,1,1,QtCore.Qt.AlignHCenter)
+        self.setLayout(grid)
+        self.center()
+
+        # Центрирует окно
+    def center(self):
+
+        screen = QtGui.QDesktopWidget().screenGeometry()
+        size = self.geometry()
+        self.move((screen.width()-size.width())/2, (screen.height()-
+        size.height())/2)
+
+        # Окошко critical
+class DrawCritical(DrawWarning):
+
+    def __init__(self,days, parent=None,):
+        QtGui.QWidget.__init__(self, parent)
+
+        self.setGeometry(960, 540, 300, 150)
+        self.setWindowTitle('printer')
+        font=QtGui.QFont()
+        font.setPointSize(14)
+        self.setFont(font)
+
+        button_ok=QtGui.QPushButton('OK',self)
+
+        button_ok.setFixedSize(100,40)
+        self.connect(button_ok,QtCore.SIGNAL('clicked()'),QtGui.qApp,
+                     QtCore.SLOT('quit()'))
+        label=QtGui.QLabel('You don\'t print for a {0} '
+              'days.\n       Do it immediately!'.format(days))
+        label2=QtGui.QLabel()
+        pixmap=QtGui.QPixmap('/usr/share/icons/gnome/48x48/status/'
+                         'messagebox_critical.png')
+        label2.setPixmap(pixmap)
+
+        grid=QtGui.QGridLayout()
+        grid.setSpacing(10)
+        grid.setVerticalSpacing(20)
+        grid.addWidget(label2,0,0,QtCore.Qt.AlignHCenter)
+        grid.addWidget(label,1,0,QtCore.Qt.AlignHCenter)
+        grid.addWidget(button_ok,2,0,1,1,QtCore.Qt.AlignHCenter)
+        self.setLayout(grid)
+        self.center()
+
 
 if __name__ == "__main__":
+
     a=ReverseFile('/tmp/1',replace=True)
     b=getInfo()
     b.getPrLastDate()
+    days=b.days
+
+    app = QtGui.QApplication(sys.argv)
+    if days >=4 and days <7:
+        qb = DrawWarning(days)
+    elif days >= 7:
+        qb = DrawCritical(days)
+    try:
+        qb.show()
+        sys.exit(app.exec_())
+    except Exception:
+        pass
