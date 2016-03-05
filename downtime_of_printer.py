@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/python3
 
 #        отступы пробелами
 #        by Andrew Sotnikov aka Luca Brasi,
@@ -52,7 +52,7 @@ class getInfo():
     # Возвращает дефолтный имя дефолтного принтера.
     def getDefPrinter(self):
         pattern=check_output(['lpstat -d'],shell=True);pattern=str(pattern)
-        res=re.search(r'(?<=destination:\s).+?(?=\\n)',pattern)
+        res=re.search(r'(?<=:\s).+?(?=\\n)',pattern)
         printer=res.group(0)
         print('Твой дефолтный принтер - {0}'.format(printer))
         return printer
@@ -186,7 +186,7 @@ if __name__ == "__main__":
     days=b.days
 
     app = QtGui.QApplication(sys.argv)
-    if days >=4 and days <7:
+    if days >=3 and days <7:
         qb = DrawWarning(days)
     elif days >= 7:
         qb = DrawCritical(days)
