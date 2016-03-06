@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 #coding=utf8
 #Этот скрипт умело делает бэкапы файлов
 
@@ -7,13 +7,34 @@
 #"gedit /usr/bin/ gedit ~/backup/"  gedit будет положен в паку backup и сохранен под именем gedit
 #Также это дело пишеться в лог my_log
 
-import time
+import time, saulog, os
 import subprocess
 
 #Адрес куда хотелось бы писать лог
 log="/var/log/andrew/my_backup.log"
 
 f=open('/home/andrew/bin/.inner_data')
+
+#Создать папку
+def mkMonthDir():
+
+    global full_path
+
+    folder_name=time.strftime('%m_%B')
+    #Путь с учетом папки месяца
+    full_path=path_afterMove[:-1]+folder_name
+    print(full_path)
+    #Проверяем наличие пути
+    if (os.path.exists(full_path)) == True:
+        print('Уже есть такой путь {0}! Ничего не нужно '
+              'делать'.format(full_path))
+
+    else:
+        os.mkdir(full_path)
+
+        print('путь создан!')
+
+
 for string in f.readlines():
     spl_str=string.split(' ')
 #   Имя зип файла
@@ -22,10 +43,18 @@ for string in f.readlines():
     path_source = spl_str[1]
 #   Путь куда переместить
     path_afterMove = spl_str[3]
+
+    mkMonthDir()
+
+
     subprocess.call("tar -C "+path_source+ " -cvj -f"+ zipname +" "+ spl_str[2], shell=True)
-    res=subprocess.call("mv "+zipname+" "+path_afterMove ,shell=True)
+    res=subprocess.call("mv {0} {1}".format(zipname,full_path), shell=True)
+
     if res == 0:
-        subprocess.call("echo "+ time.strftime("%d-%m-%Y %H:%M:%S")+ "    Была сделана резервная копия файла___"+path_source+spl_str[2]+" >> "+log, shell=True)        
+        message='Была сделана резервная копия файла {0}' \
+                '___{1}'.format(path_source,spl_str[2])
+        saulog.WriteLog(log,message)
+
 
 f.close()    
 
