@@ -38,7 +38,7 @@ def mkMonthDir():
 for string in f.readlines():
     spl_str=string.split(' ')
 #   Имя зип файла
-    zipname=spl_str[0]+time.strftime("__%d_%m_%Y") +".tar.bz2 "
+    zipname="{0}_{1}.tar.bz2".format(time.strftime("%d"), spl_str[0])
 #   Путь к источнику
     path_source = spl_str[1]
 #   Путь куда переместить
