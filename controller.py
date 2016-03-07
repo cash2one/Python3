@@ -7,6 +7,8 @@
 
 from saumysql import Crud
 import time, random, pdb
+import smtplib
+from email.mime.text import MIMEText
 
 
         # CONTROLLER
@@ -73,7 +75,8 @@ class CreateQueueTable:
 
         crud.closeConnection()
 
-
+    # Принимает список предпочитаемых авторов. На основании списка авторов
+    # возвращает id одного случайного стиха
     def getRandVerseID(self,authors):
 
         # получить случайного автора
@@ -92,12 +95,90 @@ class CreateQueueTable:
 
         return verse_id
 
+
+    #Добавляет строку в таблицу Queue
     def addRowIntoQueue(self,name,email,exec_time,verse_id):
 
-        print(' Имя - {0},\n Email - {1},\n exec_time - {2},\n '
-              'verse_id - {3}\n'.format(name,email,exec_time,verse_id))
+        # print(' Имя - {0},\n Email - {1},\n exec_time - {2},\n '
+        #       'verse_id - {3}\n'.format(name,email,exec_time,verse_id))
+        crud=Crud('localhost','andrew','andrew','verses')
+        crud.sql="INSERT INTO queue (name, email, exec_time, verse_id)" \
+                 "VALUES (\'{0}\',\'{1}\',\'{2}\',\'{3}\')".format(name,
+                 email,exec_time,verse_id)
+        crud.createAct()
+        crud.closeConnection()
 
 
+class SendMail():
+    def __init__(self):
+        crud=Crud('localhost','andrew','andrew','verses')
+
+        #получить количество элементов queue
+        crud.sql='SELECT * FROM queue'
+
+        queue=crud.readAct()
+        print(len(queue))
+        # import pdb; pdb.set_trace()
+
+        # отправить их в метод отправки
+        for x in queue:
+            self.sender(x)
+
+        # Если не одного элемента не осталось - завершаем цикл
+        # и подменяем значение на everythingToDo=True
+
+        crud.closeConnection()
+
+    #Получает сдежуюший кортеж элементов:
+    #   id  	name 	email 	exec_time 	verse_id
+    def sender(self,data):
+
+        id=data[0]; name=data[1]; email=data[2]; verse_id=data[4]
+
+        verse_data=self.getWholeVerseData(verse_id)
+        # Формат verse_data: id  author  verse_name  verse_content
+
+        sender = 'andrew.sotnikov.hlam@mail.ru'
+        receivers = [email]
+        text='\tПривет {0}!\n\n\tТвой сегодняшний автор - {1}\n {2:-<30}\n'\
+             '\tСтих называется: {3}\n {4:-<30}\n' \
+             '{5}'.format(name,verse_data[1],' ',verse_data[2],' ',
+              verse_data[3])
+
+        message=MIMEText(text, _charset='utf-8')
+
+        message['Subject']='Тебе пришел свежий стишок!)'
+
+
+        try:
+            smtp = smtplib.SMTP('Mech_engineer')
+            smtp.send_message(message,sender,receivers)
+            smtp.quit()
+            print ("Successfully sent email")
+            #После отправки сообщения смело можем его удалять из очереди
+            self.deleteFromQueue(id)
+
+        except smtplib.SMTPException:
+            print ("Error: unable to send email")
+
+    # Получает id стиха и делает выборку из verses_list
+    #Возрващает verse_data. Спецификация такая:
+    #  id  author  verse_name  verse_content
+    def getWholeVerseData(self, verse_id):
+        crud=Crud('localhost','andrew','andrew','verses')
+        crud.sql='SELECT * FROM verses_list WHERE id=\'{0}\''.format(verse_id)
+        verse_data=crud.readAct()
+        crud.closeConnection()
+
+        return verse_data
+
+
+    def deleteFromQueue(self, id):
+
+        crud=Crud('localhost','andrew','andrew','verses')
+        crud.sql='DELETE FROM verses_list WHERE id=\'{0}\''.format(id)
+        verse_data=crud.deleteAct()
+        crud.closeConnection()
 
 
 class DropQueueTable():
@@ -111,8 +192,9 @@ class DropQueueTable():
         crud.closeConnection()
 
 
-
-
 if __name__ == "__main__":
-    name=CreateQueueTable()
-    #drop=DropQueueTable()
+
+    CreateQueueTable()
+    SendMail()
+    DropQueueTable()
+
