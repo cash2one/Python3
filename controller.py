@@ -6,7 +6,7 @@
 #        --------------
 
 from saumysql import Crud
-import time, random, pdb
+import time, random, os
 import smtplib
 from email.mime.text import MIMEText
 
@@ -138,8 +138,6 @@ class SendMail():
         verse_data=self.getWholeVerseData(verse_id)
         # Формат verse_data: id  author  verse_name  verse_content
 
-        sender = 'andrew.sotnikov.hlam@mail.ru'
-        receivers = [email]
         text='\tПривет {0}!\n\n\tТвой сегодняшний автор - {1}\n {2:-<30}\n'\
              '\tСтих называется: {3}\n {4:-<30}\n' \
              '{5}'.format(name,verse_data[1],' ',verse_data[2],' ',
@@ -147,12 +145,13 @@ class SendMail():
 
         message=MIMEText(text, _charset='utf-8')
 
+        message['From']='Andrew Sotnikov <andrew.sotnikov.hlam@mail.ru>'
+        message['To']=email
         message['Subject']='Тебе пришел свежий стишок!)'
-
 
         try:
             smtp = smtplib.SMTP('Mech_engineer')
-            smtp.send_message(message,sender,receivers)
+            smtp.send_message(message)
             smtp.quit()
             print ("Successfully sent email")
             #После отправки сообщения смело можем его удалять из очереди
@@ -191,10 +190,109 @@ class DropQueueTable():
         print('Drop\'нули таблицу queue')
         crud.closeConnection()
 
+class TimeMarks():
+
+    #Текущее время
+    curTime=round(time.time())
+    #путь к лог-файлу
+    logfile='/var/log/andrew/good_verse_mailer.log'
+
+    def __init__(self):
+
+        #Проверить наличие time_marks
+        self.checkTimeMarksExist()
+        self.clearLogFile()
+        self.setQueueLock(0)
+
+
+        self.crud.closeConnection()
+
+    #Проверяет наличие таблицы time_marks. Если ее нет, то создает.
+    #В противном случае проходит мимо
+    def checkTimeMarksExist(self):
+
+        self.crud=Crud('localhost','andrew','andrew','verses')
+        self.crud.sql='SHOW TABLE STATUS LIKE \'time_marks\''
+        result=self.crud.readAct()
+        # Таблицы нету, её прийдеться создать
+        if  len(result) == 0:
+            print('Нету таблицы временных меток! Щас создадим')
+            #Cоздадим таблицу time_marks
+            self.crud.sql='''CREATE TABLE time_marks(
+                            name VARCHAR(40) NOT NULL,
+                            last_time INT NOT NULL,
+                            locked BOOLEAN NOT NULL
+                            );'''
+            result=self.crud.createAct()
+            #наполним значениями
+            self.crud.sql=('INSERT INTO time_marks (name,last_time,locked)'
+                     'VALUES (\'controller\',{0},false)'.format(
+                round(time.time())
+            ))
+            self.crud.createAct()
+            self.crud.sql=('INSERT INTO time_marks (name,last_time,locked)'
+                     'VALUES (\'log\',{0},false)'.format(
+                round(time.time())
+            ))
+            self.crud.createAct()
+
+
+        #В противном случае можно завязывать с этапом создания time_marks
+        else :
+            print('time_marks?! Походу есть такая таблица!')
+
+    # Удаляет лог-файл по истечении одной недели
+    def clearLogFile(self):
+
+        # Время недели в секунах - week = 7x24x3600 = 604800
+        week = 604800
+        self.crud.sql='SELECT last_time FROM time_marks WHERE name=\'log\''
+        last_time = (self.crud.readAct())[0]
+        elapsed = self.curTime - last_time
+
+        #Проверяем сколько времени прошло
+        if elapsed >= week:
+            try:
+                os.remove(self.logfile)
+                print('А лога уже нету. Скоро будет новый')
+
+            except Exception:
+                print('А был ли лог вообще?')
+
+        else:
+            print('не торопись :) неделя еще не прошла')
+
+
+    # Получает значени блокировки таблицы Queue
+    def getQueueLock(self):
+
+        self.crud.sql='SELECT locked FROM time_marks WHERE name=\'controller\''
+        locked=self.crud.readAct();locked=locked[0]
+
+        return locked
+
+    # Принимает lockedval. Это булево значение в числовом виде (0 или 1).
+    # На основе lockedval ставит бит доступа на запись в таблицу Queue.
+
+
+    def setQueueLock(self,lockedval):
+
+        self.crud.sql=('UPDATE time_marks SET locked=\'{0}\' WHERE '
+                       'name=\'controller\''.format(lockedval))
+
+        self.crud.updateAct()
+
+        self.crud.sql=('SELECT locked FROM time_marks WHERE '
+                       'name=\'controller\'')
+        locked=(self.crud.readAct())[0]
+
+        print('Значение locked было изменено. Текущее значение'
+              ' {0}'.format(locked))
+
 
 if __name__ == "__main__":
 
-    CreateQueueTable()
-    SendMail()
-    DropQueueTable()
-
+    # CreateQueueTable()
+    # SendMail()
+    # DropQueueTable()
+    TimeMarks()
