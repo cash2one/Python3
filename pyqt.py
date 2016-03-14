@@ -45,7 +45,7 @@ class Main(QtGui.QWidget, Ui_Form):
 
     def getRow(self,row,query):
 
-        self.crud.sql = ('SELECT {0} FROM {1} LIMIT 20'.format(row,query))
+        self.crud.sql = ('SELECT {0} FROM {1} LIMIT 150'.format(row,query))
         data=self.crud.readAct()
 
         return data
