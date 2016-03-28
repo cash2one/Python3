@@ -47,7 +47,7 @@ class Logs():
     def clearLogFile(self):
 
         # Время недели в секунах - week = 7x24x3600 = 604800
-        week = 604800
+        week = 86400
         self.crud.sql='SELECT last_time FROM time_marks WHERE name=\'log\''
         last_time = (self.crud.readAct())[0]
         elapsed = self.curTime - last_time
@@ -60,6 +60,11 @@ class Logs():
 
             except Exception:
                 print('А был ли лог вообще?')
+
+            finally:
+
+                TimeMarks.setActualLogTime(self)
+
         else:
             print('не торопись :) неделя еще не прошла')
 
@@ -111,12 +116,12 @@ class CreateQueueTable(Logs):
 
         for row in list:
             exec_time=self.curTime
-            name=str(row[0])
-            email=str(row[1])
+            name=str(row[1])
+            email=str(row[2])
             interval=2
-            authors=str(row[4])
+            authors=str(row[5])
             # quantity_per_day - желаемое количество стишков в день
-            qpd=int(row[2])
+            qpd=int(row[3])
 
             if qpd == 1:
                 # каждый раз генериуем новый verse_id для следущего абонента
@@ -124,6 +129,10 @@ class CreateQueueTable(Logs):
                 verse_id=self.getRandVerseID(authors)
                 exec_time = exec_time + delay
                 self.addRowIntoQueue(name,email,exec_time,verse_id)
+
+            # Для тех кто отписался от рассылки стишки не рассылаем!
+            elif qpd == 0:
+               print('Этот человек уже отписался от рассылки!')
 
             else:
                 #то же что и в ветке if, только для больего количества qpd
@@ -415,6 +424,15 @@ class TimeMarks(Logs):
         actual_time=self.curTime
         self.crud.sql=('UPDATE time_marks SET last_time=\'{0}\' WHERE '
                        'name=\'queue\''.format(actual_time))
+        self.crud.updateAct()
+
+
+    # Выставляет текущее время в таблице временных меток для строки log
+    def setActualLogTime(self):
+
+        actual_time=self.curTime
+        self.crud.sql=('UPDATE time_marks SET last_time=\'{0}\' WHERE '
+                       'name=\'log\''.format(actual_time))
         self.crud.updateAct()
 
 # ___________________________________________________________

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'add_view.ui'
 #
-# Created: Mon Feb 22 20:08:34 2016
+# Created: Sat Mar 26 22:50:41 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -65,7 +65,7 @@ class Ui_Form(object):
         self.label_4.setObjectName(_fromUtf8("label_4"))
         self.gridLayout_2.addWidget(self.label_4, 0, 1, 1, 1)
         self.pushButton = QtGui.QPushButton(Form)
-        self.pushButton.setGeometry(QtCore.QRect(440, 290, 141, 51))
+        self.pushButton.setGeometry(QtCore.QRect(460, 490, 141, 51))
         font = QtGui.QFont()
         font.setPointSize(14)
         font.setBold(True)
@@ -116,6 +116,14 @@ class Ui_Form(object):
         self.listWidget = QtGui.QListWidget(Form)
         self.listWidget.setGeometry(QtCore.QRect(20, 300, 401, 241))
         self.listWidget.setObjectName(_fromUtf8("listWidget"))
+        self.pushButton_2 = QtGui.QPushButton(Form)
+        self.pushButton_2.setGeometry(QtCore.QRect(460, 300, 131, 41))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.pushButton_2.setFont(font)
+        self.pushButton_2.setObjectName(_fromUtf8("pushButton_2"))
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
@@ -135,4 +143,5 @@ class Ui_Form(object):
         self.label_6.setText(_translate("Form", "Любимый поэт", None))
         self.label_5.setText(_translate("Form", "Псеводоним:", None))
         self.label_2.setText(_translate("Form", "e-mail:", None))
+        self.pushButton_2.setText(_translate("Form", "uncheck all", None))
 
