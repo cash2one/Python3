@@ -123,7 +123,11 @@ class CreateQueueTable(Logs):
             # quantity_per_day - желаемое количество стишков в день
             qpd=int(row[3])
 
-            if qpd == 1:
+            if qpd == 0:
+                print('Этот человек уже отписался от рассылки!')
+                continue
+
+            elif qpd == 1:
                 # каждый раз генериуем новый verse_id для следущего абонента
                 # в таблице queue
                 verse_id=self.getRandVerseID(authors)
@@ -131,8 +135,6 @@ class CreateQueueTable(Logs):
                 self.addRowIntoQueue(name,email,exec_time,verse_id)
 
             # Для тех кто отписался от рассылки стишки не рассылаем!
-            elif qpd == 0:
-               print('Этот человек уже отписался от рассылки!')
 
             else:
                 #то же что и в ветке if, только для больего количества qpd
@@ -261,6 +263,7 @@ class SendMail(Logs):
         message['Subject']='Тебе пришел свежий стишок!)'
 
         try:
+            time.sleep(5) #Чтобы не грузить сервер
             smtp = smtplib.SMTP('Mech_engineer')
             smtp.send_message(message)
             smtp.quit()
