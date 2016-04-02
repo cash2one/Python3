@@ -158,11 +158,12 @@ class CreateQueueTable(Logs):
         # получить случайного автора
         authors=authors.split(',')
         rand_author=(random.choice(authors)).strip()
-        #print('random autor ------ > {0}'.format(rand_author))
+        print('random autor ------ > {0}'.format(rand_author))
         #получить случайный verse_id
         crud=Crud('localhost','andrew','andrew','verses')
-        crud.sql='''SELECT id FROM verses_list WHERE author=\'{0}\'
-                 ORDER BY RAND() LIMIT 1'''.format(rand_author)
+
+        crud.sql='''SELECT * FROM verses_list WHERE LOCATE('{0}',
+                    author) > 0 ORDER BY RAND() LIMIT 1'''.format(rand_author)
         #Возвращает кортеж, поэтому прийдеться извлечь ключ
         verse_id=(crud.readAct())[0]
         crud.closeConnection()
@@ -448,15 +449,14 @@ if __name__ == "__main__":
     time_marks = TimeMarks()
 
     # Уж если нет блокировки на queue - сам Бог велел начать все с чистого
-    # листа, удалив таблициу очереди. После отпечатать новый день в логе.
+    # листа, удалив таблициу очереди. 
     if (time_marks.getQueueLock()) == 0:
-        time_marks.printDay()
         DropQueueTable()
-
     #Проверим блокировку очереди. Если блокировки нету - пишем туда
     # записи. Ну и после лочим.
-    if (time_marks.getQueueLock()) == 0:
         CreateQueueTable()
+    #Печататаем новый день в логе
+        time_marks.printDay()
         time_marks.setQueueLock(1)
 
     #Список получателей уже есть, можно начинать рассылку
