@@ -6,8 +6,10 @@
 #        --------------
 
 from saumysql import Crud
+import re
 
 
+# Создает таблицу poets, если такой нету
 class AuthorTable():
 
     def __init__(self):
@@ -52,8 +54,7 @@ class AuthorTable():
             self.createPoetsTable()
 
 
-
-
+# Заполняет таблицу poets значениями
 class FillAuthors():
 
 
@@ -61,11 +62,16 @@ class FillAuthors():
 
         self.crud=Crud('localhost','andrew','andrew','verses')
         self.gatAllAuthors()
+        self.getOneLineAuthors()
+
 
     def __del__(self):
 
         self.crud.closeConnection()
 
+    # Парсит автора. Получает строку типа Александр Сергеевич Пушкин.
+    # Возвращает словарь: authors['name':Александр, 'patronymic':Сергеевич,
+    # 'lastname':Пушкин]
     def parseAuthors(self,string):
 
         names=string.split(' ')
@@ -95,19 +101,27 @@ class FillAuthors():
 
         return author
 
-
-
+    # Получает список всех авторов и ложит их в lst_distinct
     def gatAllAuthors(self):
 
         self.crud.sql='SELECT DISTINCT author FROM verses_list'
-        lst=self.crud.readAct()
+        self.lst_distinct=self.crud.readAct()
 
         authors_list=[]
         # Пошел процесс преобразования фамилий
-        for elem in lst:
+        for elem in self.lst_distinct:
 
             self.verseslist_IN_poets(elem[0])
 
+    # Соединяет список всех авторов в одну строку
+    def getOneLineAuthors(self):
+
+        self.authors_line=[]
+        for elem in self.lst_distinct:
+
+            self.authors_line.append(elem[0])
+
+    # Проверяет наличие поэта в poets. Если такового нету - добавляет его
     def verseslist_IN_poets(self,raw_author):
 
         author=self.parseAuthors(raw_author)
@@ -120,11 +134,46 @@ class FillAuthors():
             id = self.addAuthorIntoPoets(author)
             self.updateAuthorID(id,raw_author)
 
+    # Получает список authors=[имя, отчество, фамилия]
+    # Приводит в соответстиве таблицу poets. Если автор есть в poets, но его
+    # нету в verses_list - этот автор удаляеться.
+    def poets_IN_verseslist(self, author):
+
+        lst_distinct=';'.join(self.authors_line)
+        # author - это кортеж, поэтому создадим новую переменную
+        lastname=author[2]
+
+        # Если такая фамилия есть то поищем подетальней
+        if lst_distinct.count(lastname) != 0:
+
+            # Проекранируем спецсимволы
+            lastname=lastname.replace('(','\(')
+            lastname=lastname.replace(')','\)')
+            pattern=r'{0}\s*{1}\s*{2}'.format(author[0],author[1],lastname)
+            # Ищем по всем имеющимся параметрам. Имя, Отчество, Фамилия
+            res=re.search(pattern,lst_distinct)
+            if res == None:
+                print('Такого автора действительно нету в verses_list'
+                  ' {0} {1} {2}'.format(author[0],author[1],lastname))
+                # Молча удаляем лишнего поэта
+                self.crud.sql=("DELETE FROM poets WHERE name='{0}' and "
+                               "patronymic='{1}' and lastname='{2}'").format(
+                                author[0],author[1],author[2])
+                self.crud.deleteAct()
+
+        # Нету автора с такой фамилией? Смело можно удалять.
+        else:
+            print('Какой-то левый автор, нету его в verses_list'
+                  ' {0}'.format(lastname))
+            self.crud.sql=("DELETE FROM poets WHERE name='{0}' and "
+               "patronymic='{1}' and lastname='{2}'").format(
+                author[0],author[1],author[2])
+            self.crud.deleteAct()
 
 
 
-
-
+    # Непосредственно доавляет автора в poets table. Возвращет свеже присвоенное
+    # id для данного поэта
     def addAuthorIntoPoets(self,author):
 
         self.crud.sql='''INSERT INTO poets (name, patronymic, lastname)
@@ -140,6 +189,8 @@ class FillAuthors():
 
         return id[0]
 
+
+    # Обновляет id поэта в verese_list table
     def updateAuthorID(self,id,author):
 
         self.crud.sql=('''UPDATE verses_list SET author_id=\'{0}\'
@@ -147,6 +198,13 @@ class FillAuthors():
         print('Успешно присовен ID={0:5} автору {1}'.format(id,author))
         self.crud.updateAct()
 
+    # Остюда начинаеться процесс синхронизации поэтов verses_list -> poets
+    def synchroPoetryToVerses_list(self):
+
+        self.crud.sql='SELECT name, patronymic, lastname FROM poets'
+        authors=self.crud.readAct()
+        for author in authors:
+            self.poets_IN_verseslist(author)
 
 
 
@@ -154,3 +212,4 @@ if __name__ == "__main__":
 
     obj=AuthorTable()
     obj2=FillAuthors()
+    obj2.synchroPoetryToVerses_list()
