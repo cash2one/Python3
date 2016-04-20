@@ -5,17 +5,15 @@
 #        e-mail: andruha.sota@mail.ru
 #        --------------
 
-        # Формирует список авторов в правильном порядке. После пишет их в
-        # файл output_file.
+        # GUI окошко для формирования списка авторов. На выходе дает html
+        # файл. Есть функция превьюшника в браузере.
+
 
 import author_list_view
 from saumysql import Crud
-import requests, time, sys, saumysql, re
+import requests, time, sys, saumysql, re, subprocess, threading
 from PyQt4 import QtGui
 from PyQt4 import QtCore
-
-
-
 
 
 class View(QtGui.QMainWindow, author_list_view.Ui_MainWindow):
@@ -28,13 +26,15 @@ class View(QtGui.QMainWindow, author_list_view.Ui_MainWindow):
         self.setupUi(self)
 
 
-
+    # Приводит в действие кнопку 'strart!'
     def handler(self):
 
         self.getChoice()
         html=makeHTML(self.output_file,self.sortBy,self.author_id,self.rating,
                       self.followers)
 
+    # Приводит в действие кнопку 'select file'. Повляеться форма с выбором
+    # файла для сохранения
     def getFname(self):
 
         filename = QtGui.QFileDialog()
@@ -42,6 +42,8 @@ class View(QtGui.QMainWindow, author_list_view.Ui_MainWindow):
         print(self.output_file)
 
 
+    # Формирует список предпочтений и для html-файла.
+    # Порядок сорировки и вывод/невывод полей: id, rating, followers
     def getChoice(self):
 
         # Определим порядок сортировки
@@ -73,9 +75,20 @@ class View(QtGui.QMainWindow, author_list_view.Ui_MainWindow):
             self.followers=False
 
 
+    # Приводит в действие кнопку preview
+    def previewHTML(self):
 
+        self.getChoice()
+        th1=threading.Thread(target=self.openInBrowser)
+        th1.start()
 
+    # Открывает в браузере превьюшник файла
+    def openInBrowser(self):
 
+        temporaryFile='/tmp/author_list_preview.html'
+        html=makeHTML(temporaryFile,self.sortBy,self.author_id,self.rating,
+                      self.followers)
+        subprocess.call('firefox -new-tab {0}'.format(temporaryFile), shell=True)
 
 
 class makeHTML():
@@ -93,6 +106,7 @@ class makeHTML():
         self.doFooter()
         self.f.close()
 
+    # Фомирует хэдер файла
     def doHeader(self):
 
         self.f.write('''
@@ -103,8 +117,13 @@ class makeHTML():
         </head>
         <body>
         <table>
+        <title>Full poetry list</title>
+        <style type="text/css">
+        td {padding: 5px 30px; font-size: 14pt}
+        </style>
         ''')
 
+    # Формирует футер
     def doFooter(self):
 
         self.f.write('''
@@ -113,6 +132,8 @@ class makeHTML():
         </html>
         ''')
 
+    # Формирует таблицу с авторами. С учетом ранее полученных предпочтений
+    # (сортировки и выводимых полей)
     def doTable(self):
 
         sortBy='lastname'
@@ -136,6 +157,10 @@ class makeHTML():
 
             self.f.write('\n\t\t<tr>{0}{1}{2}{3}</tr>'.format(author_id,
             author_data, rating, followers))
+
+    # Собирает имя файла из полученной строки таблицы poets.
+    # Учитывает сорировку возвращает строку формата: Пушкин Александр Сергеевич
+    # или же Александр Сергеевич Пушкин
     def makeAuthorName(self,row):
 
         if (self.sortBy == 'name') or (self.sortBy == 'id') or (

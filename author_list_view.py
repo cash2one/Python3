@@ -176,6 +176,8 @@ class Ui_MainWindow(object):
              self.handler)
         self.connect(self.pushButton_3,QtCore.SIGNAL('clicked()'),
              self.getFname)
+        self.connect(self.pushButton_4,QtCore.SIGNAL('clicked()'),
+             self.previewHTML)
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "Author list file", None))
