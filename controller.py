@@ -119,6 +119,7 @@ class CreateQueueTable(Logs):
             name=str(row[1])
             email=str(row[2])
             interval=2
+            # author_id. Атовра представлены в виде id
             authors=str(row[5])
             # quantity_per_day - желаемое количество стишков в день
             qpd=int(row[3])
@@ -158,12 +159,12 @@ class CreateQueueTable(Logs):
         # получить случайного автора
         authors=authors.split(',')
         rand_author=(random.choice(authors)).strip()
-        print('random autor ------ > {0}'.format(rand_author))
+        print('random author ------ > {0}'.format(rand_author))
         #получить случайный verse_id
         crud=Crud('localhost','andrew','andrew','verses')
 
         crud.sql='''SELECT * FROM verses_list WHERE LOCATE('{0}',
-                    author) > 0 ORDER BY RAND() LIMIT 1'''.format(rand_author)
+                    author_id) > 0 ORDER BY RAND() LIMIT 1'''.format(rand_author)
         #Возвращает кортеж, поэтому прийдеться извлечь ключ
         verse_id=(crud.readAct())[0]
         crud.closeConnection()
