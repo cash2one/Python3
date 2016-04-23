@@ -40,8 +40,8 @@ class ConvertAuthors():
             self.crud.updateAct()
 
 
-    # Получает строку авторов. Разбирает ее возвращает строку где вместо
-    # вместо имен авторов - author_id
+    # Получает строку авторов. Разбирает ее и возвращает строку где вместо
+    # имен авторов - author_id
     def literalToDigits(self,literalAuthors):
 
         self.crud.sql=('SELECT name, patronymic, lastname, id '
