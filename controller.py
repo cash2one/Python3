@@ -163,8 +163,8 @@ class CreateQueueTable(Logs):
         #получить случайный verse_id
         crud=Crud('localhost','andrew','andrew','verses')
 
-        crud.sql='''SELECT * FROM verses_list WHERE LOCATE('{0}',
-                    author_id) > 0 ORDER BY RAND() LIMIT 1'''.format(rand_author)
+        crud.sql='''SELECT * FROM verses_list WHERE author_id={0}
+                    ORDER BY RAND() LIMIT 1'''.format(rand_author)
         #Возвращает кортеж, поэтому прийдеться извлечь ключ
         verse_id=(crud.readAct())[0]
         crud.closeConnection()
