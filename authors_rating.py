@@ -8,6 +8,9 @@
         # Поддерживает в актуальном состоянии количество подписчиков и рейтинг
         # в таблце poets.
 
+        # На основании свежего рейтинга авторов формирует ТОП - список самых
+        # популярных авторов.
+
 from saumysql import Crud
 import collections
 
@@ -89,6 +92,81 @@ class Rating():
         self.crud.closeConnection()
 
 
+# Формирует HTML файл с ТОП - n атворов
+class RatingFile():
+
+    output_file='/tmp/authors_rating_file.html'
+    top=15
+
+    def __init__(self):
+        self.getTopList()
+        self.makeFile()
+        print('Шикарно. Сфоримирован список авторов. Найти его можно по адресу '
+              '- {0}'.format(self.output_file))
+
+
+    # Получает список авторов
+    def getTopList(self):
+
+        self.crud=Crud('localhost','andrew','andrew','verses')
+        self.crud.sql='''SELECT lastname, name, patronymic, rating FROM poets
+                         ORDER BY rating DESC LIMIT {0}'''.format(self.top)
+        self.authors=self.crud.readAct()
+
+    # Запускает на исполнение создание файла авторов
+    def makeFile(self):
+
+        self.f=open(self.output_file,'w')
+        self.doHeader()
+        self.doTable()
+        self.doFooter()
+        self.f.close()
+
+    # Фомирует хэдер файла
+    def doHeader(self):
+
+        self.f.write('''
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="UTF-8">
+        </head>
+        <body>
+        <table>
+        <title>Full poetry list</title>
+        <style type="text/css">
+        table {margin-left: auto;margin-right: auto; margin-top: 5%}
+        td {padding: 5px 30px; font-size: 14pt}
+        </style>
+        ''')
+
+    # Формирует футер
+    def doFooter(self):
+
+        self.f.write('''
+        </table>
+        </body>
+        </html>
+        ''')
+
+    # Формирует таблицу с авторами. С учетом ранее полученных предпочтений
+    # (сортировки и выводимых полей)
+    def doTable(self):
+
+        self.f.write('''<tr><td colspan="3" style='text-align:center'>
+                        <b>ТОП-{0} АВТОРОВ</b></td></tr>
+                        <tr><td style='height:90px'>№</td><td>автор</td>
+                        <td>рейтинг</td></tr>
+                        '''.format(self.top))
+        i=1
+        for row in self.authors:
+
+            self.f.write(
+                '''<tr><td>{0}</td><td>{1}</td><td>{2} %</td></tr>'''.format(
+                    i,' '.join([row[0],row[1],row[2]]),row[3]))
+            i=i+1
+
 if __name__ == "__main__":
 
     obj=Rating()
+    obj2=RatingFile()
