@@ -4,7 +4,7 @@
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 import  sys
-import add_view, main_view, remove_view
+import add_view, main_view, remove_view, edit_view
 from saumysql import Crud
 
 
@@ -60,8 +60,18 @@ class Model():
                          \'{4}\')'''.format(name,email,quantity_per_day,
                                             intervals, authors)
 
-        print(self.crud.sql)
+
         self.crud.createAct()
+
+    def editContacts(self,id,name,qpd,authors):
+
+        authors=','.join(authors)
+        self.crud.sql='''UPDATE contacts SET name='{0}',quantity_per_day='{1}',
+                         authors='{2}' WHERE id=\'{3}\''''.format(name,qpd,
+                                                                  authors,id)
+
+        self.crud.updateAct()
+
 
     def removeFromContacts(self,id):
 
@@ -76,6 +86,7 @@ class Model():
         self.crud.sql=("UPDATE contacts SET quantity_per_day=0 "
                        "WHERE id={0}".format(id))
         self.crud.updateAct()
+
 
 
 
@@ -125,6 +136,9 @@ class Remove(QtGui.QWidget, remove_view.Ui_Form):
         # Подключили кнопку quit
         self.connect(self.pushButton_3,QtCore.SIGNAL('clicked()'),
              self.close)
+        # Подключили кнопку refresh
+        self.connect(self.pushButton_6,QtCore.SIGNAL('clicked()'),
+             self.refreshTable)
 
 
 
@@ -136,6 +150,11 @@ class Remove(QtGui.QWidget, remove_view.Ui_Form):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
+    # Делает refresh таблицы. А то без него как то скучно.
+    def refreshTable(self):
+
+        self.tableWidget.clear()
+        self.showIntoTable()
 
     # Делает выборку контактов из таблицы
     def fetchAllFromContacts(self):
@@ -158,12 +177,6 @@ class Remove(QtGui.QWidget, remove_view.Ui_Form):
                 for column in range(0,6):
                     cell=self.tableWidget.item(row,column)
                     cell.setBackgroundColor(color)
-
-
-
-
-
-
 
     # Выводит содержимое из БД в таблицу
     def showIntoTable(self):
@@ -227,11 +240,31 @@ class Remove(QtGui.QWidget, remove_view.Ui_Form):
 
         currentRow = self.tableWidget.currentRow()
         id_value=self.tableWidget.item(currentRow,0).text()
+        name=self.tableWidget.item(currentRow,1).text()
+        qpd=self.tableWidget.item(currentRow,3).text()
         print('Текущее значени выбранного элемента {0}'.format(id_value))
         crud=Model()
-        crud.zeroizeQpd(id_value)
+        self.window4 = None
+        if int(qpd) !=0:
+            crud.zeroizeQpd(id_value)
+
+        else:
+
+            if self.window4 is None:
+                id_value=str(id_value)
+                print(id_value)
+                self.window4 = Edit(self)
+                self.window4.selectPreviousAuthors(id_value)
+                self.window4.showPreviousName(name)
+
+
+            self.window4.show()
+
+
         self.tableWidget.clear()
         self.showIntoTable()
+
+
 
 
 
@@ -255,12 +288,13 @@ class Add(QtGui.QWidget, add_view.Ui_Form):
     def addToList(self):
 
         self.crud=Crud('localhost','andrew','andrew','verses')
-        results=self.getRow('author','verses_list')
+        self.results=self.getRow()
         self.crud.closeConnection()
+
 
         self.listWidget.setSelectionMode(
             QtGui.QAbstractItemView.MultiSelection)
-        for x in results:
+        for x in self.results[0]:
             self.listWidget.addItems(x)
 
 
@@ -282,24 +316,137 @@ class Add(QtGui.QWidget, add_view.Ui_Form):
         print(self.lineEdit_4.text())
         items=self.listWidget.selectedItems()
 
-        self.selectedItems=[]
-        for x in items:
-            self.selectedItems.append(x.text())
-        print(self.selectedItems)
+        # Получим индексы выбранных авторов. Запишем их в indexes
+        indexes=[]
+        for item in items:
+            index=self.listWidget.row(item)
+            indexes.append(index)
+
+        authors_id=[]
+        for index in indexes:
+            authors_id.append(str(self.results[1][index][0]))
 
         # Добавление в таблцу с контактами
         self.model=Model()
         self.model.addIntoContacts(self.lineEdit_2.text(),self.lineEdit.text(),
-        self.lineEdit_4.text(), self.lineEdit_3.text(), self.selectedItems)
+        self.lineEdit_4.text(), self.lineEdit_3.text(), authors_id)
 
 
-    def getRow(self,row,query):
+    def getRow(self):
 
-        self.crud.sql = ('SELECT DISTINCT {0} FROM {1} ORDER BY {0}'.format(
-            row,query))
-        data=self.crud.readAct()
+        self.crud.sql = ('SELECT lastname, name, patronymic '
+                         'FROM poets ORDER BY lastname')
+        raw_authors=self.crud.readAct()
+        authors_name=[]
+        for elem in raw_authors:
+            authors_name.append([' '.join(elem)])
 
-        return data
+        self.crud.sql = ('SELECT id FROM poets ORDER BY lastname')
+        authors_id=self.crud.readAct()
+
+        return authors_name, authors_id
+
+
+#Окно редактирования в БД
+class Edit(QtGui.QWidget, edit_view.Ui_Form):
+
+
+    def __init__(self, parent=None):
+
+        super().__init__(parent=None)
+        self.setupUi(self)
+        self.addToList()
+
+    # Выборка списка авторов из verses_list. Вывод выборки в listWidget
+    # в окне добавления.
+    def addToList(self):
+
+        self.model=Model()
+        self.results=self.getRow()
+
+        self.listWidget.setSelectionMode(
+            QtGui.QAbstractItemView.MultiSelection)
+        for x in self.results[0]:
+            self.listWidget.addItems(x)
+
+
+
+    def uncheckAll(self):
+
+        for row in range(0,self.listWidget.count()):
+
+            item=self.listWidget.item(row)
+            self.listWidget.setItemSelected(item,False)
+
+
+
+    def printInput(self):
+
+
+        items=self.listWidget.selectedItems()
+
+        # Получим индексы выбранных авторов. Запишем их в indexes
+        indexes=[]
+        for item in items:
+            index=self.listWidget.row(item)
+            indexes.append(index)
+
+        authors_id=[]
+        for index in indexes:
+            authors_id.append(str(self.results[1][index][0]))
+
+        # Добавление в таблцу с контактами
+        self.model=Model()
+        self.model.editContacts(self.id,self.lineEdit_2.text(),self.spinBox.value(),
+        authors_id)
+
+
+
+    def getRow(self):
+
+        self.model.crud.sql = ('SELECT lastname, name, patronymic '
+                         'FROM poets ORDER BY lastname')
+        raw_authors=self.model.crud.readAct()
+        authors_name=[]
+        for elem in raw_authors:
+            authors_name.append([' '.join(elem)])
+
+        self.model.crud.sql = ('SELECT id FROM poets ORDER BY lastname')
+        authors_id=self.model.crud.readAct()
+
+        return authors_name, authors_id
+
+
+    def selectPreviousAuthors(self,id):
+
+        self.id=id
+        self.model.crud.sql = ('''SELECT authors FROM contacts
+                                  WHERE id=\'{0}\''''.format(id))
+
+        authors_id=self.model.crud.readAct()
+        authors_id=authors_id[0].split(',')
+
+        self.model.crud.sql = ('SELECT id FROM poets ORDER BY lastname')
+        authors_list=self.model.crud.readAct()
+
+        indexes=[]
+        for author in enumerate(authors_list):
+            for author_id in authors_id:
+
+                # Он же нихера не строка!
+                str_author = str(author[1][0])
+                if author_id == str_author:
+                    indexes.append(author[0])
+        print(indexes)
+        for row in indexes:
+            listWidet_item=self.listWidget.item(row)
+            listWidet_item.setSelected(True)
+
+
+    def showPreviousName(self,name):
+
+        self.lineEdit_2.setText(name)
+
 
 if __name__ == "__main__":
 

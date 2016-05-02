@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'remove_from_contacts.ui'
 #
-# Created: Sun Mar 27 20:45:02 2016
+# Created: Mon May  2 23:12:18 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -75,6 +75,17 @@ class Ui_Form(object):
         self.pushButton_3.setFont(font)
         self.pushButton_3.setObjectName(_fromUtf8("pushButton_3"))
         self.horizontalLayout.addWidget(self.pushButton_3)
+        self.pushButton_6 = QtGui.QPushButton(Form)
+        self.pushButton_6.setGeometry(QtCore.QRect(30, 900, 146, 39))
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.pushButton_6.sizePolicy().hasHeightForWidth())
+        self.pushButton_6.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.pushButton_6.setFont(font)
+        self.pushButton_6.setObjectName(_fromUtf8("pushButton_6"))
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
@@ -85,4 +96,5 @@ class Ui_Form(object):
         self.pushButton_5.setText(_translate("Form", "deactivate", None))
         self.pushButton_4.setText(_translate("Form", "remove", None))
         self.pushButton_3.setText(_translate("Form", "quit", None))
+        self.pushButton_6.setText(_translate("Form", "refresh", None))
 
