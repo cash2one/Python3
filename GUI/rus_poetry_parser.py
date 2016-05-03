@@ -15,10 +15,10 @@ from lxml import html
 import requests, time, sys, saumysql, threading, re
 from PyQt4 import QtGui
 from PyQt4 import QtCore
-import rus_parse_poet_view
+import rus_poetry_parser_view
 
 
-class View(QtGui.QMainWindow, rus_parse_poet_view.Ui_MainWindow):
+class View(QtGui.QMainWindow, rus_poetry_parser_view.Ui_MainWindow):
 
     def __init__(self, parent=None):
 

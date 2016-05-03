@@ -136,13 +136,13 @@ class makeHTML():
     # (сортировки и выводимых полей)
     def doTable(self):
 
-        sortBy='lastname'
+        sortBy=''
         author_id=''
         rating=''
         followers=''
 
         crud=saumysql.Crud('localhost','andrew','andrew','verses')
-        crud.sql='SELECT * FROM poets ORDER BY {0}'.format(sortBy)
+        crud.sql='SELECT * FROM poets ORDER BY {0}'.format(self.sortBy)
         rows=crud.readAct()
         for row in rows:
 
