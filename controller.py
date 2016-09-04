@@ -253,9 +253,16 @@ class SendMail(Logs):
         verse_data=self.getWholeVerseData(verse_id)
         # Формат verse_data: id  author  verse_name  verse_content
 
-        text='\tПривет {0}!\n\n\tТвой сегодняшний автор - {1}\n {2:-<30}\n'\
-             '\tСтих называется: {3}\n {4:-<30}\n' \
-             '{5}'.format(name,verse_data[1],' ',verse_data[2],' ',
+        text='''\tПривет {0}!\n\n\tТвой сегодняшний автор - {1}\n {2:-<30}\n
+             \tСтих называется: {3}\n {4:-<30}\n \
+             {5}\n\n
+             ___________________________
+             Have a nice day!\n
+             http://poetry.progreso.com.ua\n
+
+             created by Andrew Sotnikov\n
+             Hyper Logic Adjustable Mailer, 2016\n
+             '''.format(name,verse_data[1],' ',verse_data[2],' ',
               verse_data[3])
 
         message=MIMEText(text, _charset='utf-8')
@@ -266,7 +273,7 @@ class SendMail(Logs):
 
         try:
             time.sleep(5) #Чтобы не грузить сервер
-            smtp = smtplib.SMTP('Mech_engineer')
+            smtp = smtplib.SMTP('mech-engineer')
             smtp.send_message(message)
             smtp.quit()
             print ("Successfully sent email")

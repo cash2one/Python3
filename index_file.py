@@ -65,10 +65,11 @@ class IndexFile():
             #footer  {height: 30px; font-size: 16pt; color:#CAE1FF;
             margin-left: -30px;padding: 15px 170px; text-align: center;
             background-color:#228B22}
+            #sau_link:hover, #sau_link:link, #sau_link:visited, #sau_link:active {color:#CAE1FF; text-decoration: underline}
         </style>
         </head>
         <body>
-        <title>WELCOME!</title>
+        <title>Поэзия для каждого!</title>
         <form method="POST" action="handler.php" onsubmit="return empty_form()">
         <div id="wrapper">
         <div id="header">
@@ -94,7 +95,7 @@ class IndexFile():
         <div style="width: 450px; float:left; margin:10px 0px 10px 0px"><input type="radio" name="user" value="new" checked>новый пользователь</div>
         <div style="width: 200px; float:left; margin:10px 0px 10px 0px"><input type="radio" name="user" value="old">мне бы поменять :)</div>
         <div style="margin-top:60px; margin-bottom:0px"> <table><tr>
-        <td width="425px"><button type="button" class="btn">Помощь</button></td>
+        <td width="425px"><button type="button" onclick="location.href='http://poetry.progreso.com.ua/help.html'" class="btn">Помощь</button></td>
         <td width="100px"><button type="reset" class="btn">Сборосить </button> </td>
         <td width="100px"><button type="submit" class="btn">ОК!</button></td>
         </tr></table> </div>
@@ -107,7 +108,7 @@ class IndexFile():
 
         self.f.write('''
 
-        <div id="footer">Andrew Sotnikov ^ 2016 ^ </div>
+        <div id="footer"><a id='sau_link' target='_blank' href='https://www.facebook.com/andrew.sotnikov'>Andrew Sotnikov </a> ^ 2016 ^ </div>
         </div>
         </form>
         </body>

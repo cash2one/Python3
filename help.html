@@ -1,0 +1,66 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="UTF-8">
+        <script src="myScript.js"></script>
+        <style type="text/css">
+            #wrapper {width: 700px; margin-left: auto;margin-right: auto; border: 1px solid black;
+            padding-left:30px}
+            #header {height: 200px; margin-left:-30px; margin-bottom:40px; font-size: 24pt;color:green; font-weight: bold;
+            text-align: center}
+            .user_input {width: 375px} select {width: 635px}
+            option {font-size: 12pt} tr {height: 35px} .btn {font-size: 12pt;
+            width: 100px}
+            #content {min-height: 680px; font-size:14pt; width: 650px; text-align: justify; margin-bottom: 60px}
+            a#top15:visited, a#top15:active, a#top15:link {color: blue;}
+            a#top15:hover {color: red}
+            #footer  {height: 30px; font-size: 16pt; color:#CAE1FF;
+            margin-left: -30px;padding: 15px 170px; text-align: center;
+            background-color:#228B22}
+            a#to_main:visited, a#to_main:active, a#to_main:link {color: orange;}
+            a#to_main:hover {color: red}
+            #footer  {height: 30px; font-size: 16pt; color:#CAE1FF;
+            margin-left: -30px;padding: 15px 170px; text-align: center;
+            background-color:#228B22}
+            #sau_link:hover, #sau_link:link, #sau_link:visited, #sau_link:active {color:#CAE1FF; text-decoration: underline}
+
+            
+        </style>
+        </head>
+        <body>
+        <title>Поэзия для каждого!</title>
+        <form method="POST" action="handler.php" onsubmit="return empty_form()">
+        <div id="wrapper">
+        <div id="header">
+        GOOD VERSE MAILER
+        <img src="images/header_image.jpg" alt="authors" style="margin: 5px 0px 0px 3px">
+        <div style="font-size: 16pt; color:green; margin: -6px 0px 0px 0px; font-weight: normal"> poetry for everyone </div>
+        </div>
+        <div id="content"> 
+            <p align="center"><img src="images/girl_with_wrench.jpg" alt="girl_with_wrech" style="margin: 10px auto"> </p>
+            <p>GOOD VERSE MAILER - это приложение которое рассылает стихи. Надеюсь его уникальность ты отчасти знаешь, теперь пришло время проверить на практике. Накрайняк всегда можешь почитать <a href="http://progreso.com.ua/?tag=good_verse_mailer" target="_blank">здесь</a>. Теперь о технических моментах подписки. Как ты уже догадался, заполняешь поля и через сутки получаешь маленькое счастье. Тебе на мыло будут приходить стишки с учетом твоих предпочтений, вот <a href="http://poetry.progreso.com.ua/mail_example.html" target="_blank">пример </a> одного из писем.</p>
+            <p style="margin-bottom:40px">Пройдемся по стандартным полям:</p>
+            <p>Поля для ввода <b>имени</b>. Имя которое будет отображаться в письме. Можно писать как кириллицей так и латынью. </p>
+            <p><img src="images/selection_002.png" alt="name_field" style="margin: 5px 0px 0px 3px"> </p>
+            <p>Адрес <b>почты</b> на который будут приходить письма.</p>
+            <p><img src="images/selection_003.png" alt="email_field" style="margin: 5px 0px 0px 3px"> </p>
+            <p><b>Количество стишков день</b>. В одном письме содержиться один стих. Допустим ты захотел получать 3 стишка в день. ОК, пиши 3. Одно письмо прийдет утром, одно в средине дня и одно вечером. Рассылка начинаеться ~7-8 часов и длиться 10 часов. Вот и считай 10 часов делим на 3 и получаем интервал с корорым будут приходить стишки. Если указать в данной форме не 3 а 5, то интервал соответсвенно будет 2 часа (10/5).</p>        
+            <p><img src="images/selection_004.png" alt="quantity_per_day" style="margin: 5px 0px 0px 3px"> </p>     
+            Список <b>поэтов</b> которые разнообразят нас стишками. Можно выбирать как одного автора, так и нескольких.   
+            <p><img src="images/selection_005.png" alt="authors" style="margin: 5px 0px 0px 3px"> </p>   
+            <p> Допустим из любопытства ради (а может из-за чего еще) тебе стало интересно взглянуть на самых популярных авторов. Никаких проблем, ТОП-15 самых популярных авторов от тебя не спрячеться. Просто жми на ссылку.</p>
+            <p style="font-size: 22pt; padding-top:20px; padding-bottom: 20px; text-align:center"><a id="top15" href="http://poetry.progreso.com.ua/authors_rating_file.html" target="_blank">ТОП-15</a></p>
+            <p>Ну и в конце нужно выбрать <b>тип юзера</b>. Всего-лишь указать подписан ли ты на рассылку или нет. Если ты не был подписан на рассылку - просто оставляешь положение флажка "новый пользователь", оно по-умолчанию. <i>Если ты уже получаешь стишки</i> и хочешь поменять свое имя, количество стишков или автора - жми "мне бы поменять". Иными словами либо создать еще одного подписчика, либо поменять вкусы старого.</p>
+            <p ><img src="images/selection_006.png" alt="type_of_user" style="margin: 5px 0px 0px 3px"> </p>    
+            <p style="padding-bottom: 60px">После заполнения всех полей можно жать "ОК!" и уже со следуюйщего дня наслаждаться рассылкой <a href=http://yoursmiles.org/m-fun.php><img src=http://yoursmiles.org/msmile/fun/m0122.gif></a></p>
+        </div>
+        <p style="font-size: 18pt; padding-top:20px; padding-bottom: 20px; text-align:center"><a id="to_main" href="http://poetry.progreso.com.ua/" target="_blank">НА ГЛАВНУЮ</a></p>
+        
+
+        <div id="footer"><a id='sau_link' target='_blank' href='https://www.facebook.com/andrew.sotnikov'>Andrew Sotnikov </a> ^ 2016 ^ </div>
+        </div>
+        </form>
+        </body>
+        </html>
+        
