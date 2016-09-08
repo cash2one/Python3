@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 
 #        отступы табуляцией
 #        by Andrew Sotnikov aka Luca Brasi,

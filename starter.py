@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 
 #        отступы табуляцией
 #        by Andrew Sotniokv aka Luca Brasi, 
@@ -38,8 +38,8 @@ class Launch():
 
 if __name__ == "__main__":
     time.sleep(240)    
-#   Пути указывать в абсолюном формате
-    tasks=['/home/andrew/bin/play_eng.py']
+#   Пути указывать в относительном формате
+    tasks=['./play_eng.py']
     lanch=Launch()
     t=lanch.getTime('h')
     while t <= lanch.end:

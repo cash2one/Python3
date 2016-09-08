@@ -30,7 +30,6 @@ class Crud():
     def readAct(self):
 
         cursor = self.db.cursor()
-        print(self.sql)
         try:
             cursor.execute(self.sql)
 

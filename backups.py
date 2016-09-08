@@ -13,7 +13,7 @@ import subprocess
 #Адрес куда хотелось бы писать лог
 log="/var/log/andrew/my_backup.log"
 
-f=open('/home/andrew/bin/.inner_data')
+f=open('/media/Maindata/Дело/das_code/py/sys_scripts/.inner_data')
 
 #Создать папку
 def mkMonthDir():
