@@ -105,7 +105,7 @@ class PlayBBC(View):
 
 class Launch():
 #    Интервал в секундах
-    interval=3600
+    interval=5
     start=19
     end=24
     
