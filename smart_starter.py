@@ -29,7 +29,7 @@ class Log:
             fcreated_day = time.localtime(f_time).tm_mday
             cur_day = time.localtime(time.time()).tm_mday
 
-            if fcreated_day != f_time:
+            if fcreated_day != cur_day:
                 os.remove(self.logfile)
                 f = open(self.logfile,'w')
                 f.write('{0:#<120}\n{1:#^120}\n{2:#<120}\n\n\n'.format('',
