@@ -199,30 +199,44 @@ class UpdateProxies():
             f.close()
 
 
-        # Пишем инфу в лог
-        # получим самый старый и самый молодой возраст прокси
-        self.crud.sql = 'SELECT MIN(time), MAX(time) FROM proxies'
-        res = self.crud.readAct()
-        # Переведи мне все это в часы
-        older_proxy = round((time.time() - res[0])/3600)
-        younger_proxy = round((time.time() - res[1])/3600)
+        try:
+        
+            # Пишем инфу в лог
+            # получим самый старый и самый молодой возраст прокси
+            self.crud.sql = 'SELECT MIN(time), MAX(time) FROM proxies'
+            res = self.crud.readAct()
+            # Переведи мне все это в часы
+            older_proxy = round((time.time() - res[0])/3600)
+            younger_proxy = round((time.time() - res[1])/3600)
 
-        # Запишем инфу в лог
-        saulog.WriteLog(self.logfile, 'Рабочих ip - {0}'.format(
-            len(self.working_proxies)))
-        saulog.WriteLog(self.logfile, 'Не рабочих ip - {0}'.format(
-            len(self.not_working_proxies)))
-        saulog.WriteLog(self.logfile, 'Возраст самого старого прокси - {0} часов'.format(
-        older_proxy))
-        saulog.WriteLog(self.logfile, 'Возраст самого недавнего прокси - {0} часов\n\n'.format(
-        younger_proxy))
-        # Лог записали
+            # Запишем инфу в лог
+            saulog.WriteLog(self.logfile, 'Рабочих ip - {0}'.format(
+                len(self.working_proxies)))
+            saulog.WriteLog(self.logfile, 'Не рабочих ip - {0}'.format(
+                len(self.not_working_proxies)))
+            saulog.WriteLog(self.logfile, 'Возраст самого старого прокси - {0} часов'.format(
+            older_proxy))
+            saulog.WriteLog(self.logfile, 'Возраст самого недавнего прокси - {0} часов\n\n'.format(
+            younger_proxy))
+            # Лог записали
+        except TypeError:
+            
+            print('не получилось...')
+            
+        
 
         self.crud.closeConnection()
 
 if __name__ == "__main__":
 
-    Preparing()
-    UpdateProxies()
-    GetProxy()
+    #проверим не легла ли сеть
+    ping = call('ping -c 4 google.com', shell=True)
+    if ping == 0:
+
+        Preparing()
+        UpdateProxies()
+        GetProxy()
+        
+    else:
+        print('сеть легла. Не буду ничего делать...')
 
