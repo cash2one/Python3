@@ -39,7 +39,7 @@ class Launch():
 if __name__ == "__main__":
     time.sleep(240)    
 #   Пути указывать в относительном формате
-    tasks=['./play_eng.py']
+    tasks=['/media/Maindata/Дело/das_code/py/sys_scripts/play_eng.py']
     lanch=Launch()
     t=lanch.getTime('h')
     while t <= lanch.end:
