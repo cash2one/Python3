@@ -11,7 +11,7 @@
 #       wrote by:
 #            Andrew Sotnikov <andruha.sota@mail.ru> 2016
 #            aka Luca Brasi
-                    
+
 
 import sys, time, threading
 from PyQt4 import QtCore, QtGui
@@ -23,7 +23,7 @@ try:
 except AttributeError:
     def _fromUtf8(s):
         return s
-        
+
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
@@ -34,7 +34,7 @@ except AttributeError:
         return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_Form(QtGui.QWidget):
-    
+
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self,parent)
         self.setupUi(self)
@@ -42,7 +42,7 @@ class Ui_Form(QtGui.QWidget):
         #поключим кнопку start
         self.connect(self.pushButton,QtCore.SIGNAL('clicked()'),
              self.startTimer)
-        #поключим кнопку pause     
+        #поключим кнопку pause
         self.connect(self.pushButton_2,QtCore.SIGNAL('clicked()'),
              self.pauseTimer)
         #поключим кнопку stop
@@ -51,8 +51,11 @@ class Ui_Form(QtGui.QWidget):
         #пусть qlabel будет менять каждый раз при сигнале updateVal
         self.connect(self,QtCore.SIGNAL('updateVal()'),
              self.updateValues)
-               
-    
+        #блокировка кнопки start
+        self.start_btn_bl = None
+
+
+
     def setupUi(self, Form):
         Form.setObjectName(_fromUtf8("Form"))
         Form.resize(395, 166)
@@ -101,50 +104,53 @@ class Ui_Form(QtGui.QWidget):
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(_translate("Form", "Form", None))
+        Form.setWindowTitle(_translate("sau_timer", "sau_timer", None))
         self.pushButton.setText(_translate("Form", "start", None))
         self.pushButton_2.setText(_translate("Form", "pause", None))
         self.pushButton_3.setText(_translate("Form", "stop", None))
         self.label.setText(_translate("Form", "00 :", None))
         self.label_2.setText(_translate("Form", "00 :", None))
         self.label_3.setText(_translate("Form", "00", None))
-    
+
     #стартует таймер
     def startTimer(self):
-        
-        self.pause = False
-        
-        self.timer_started = True
-        self.timer_hour = 0
-        self.timer_min = 0
-        self.timer_sec = 0
-        #создаем и запускаем отдельный поток
-        th1 = threading.Thread(target=self.timerLoop)
-        th1.start()
-        
-    #слот для обновления значений в элементе qlabel   
+
+        if (self.start_btn_bl != True):
+
+            self.pause = False
+            self.timer_started = True
+            self.timer_hour = 0
+            self.timer_min = 0
+            self.timer_sec = 0
+            #создаем и запускаем отдельный поток
+            th1 = threading.Thread(target=self.timerLoop)
+            th1.start()
+
+    #слот для обновления значений в элементе qlabel
     def updateValues(self):
-        
+
         #правим значения для каждого qlabel
-        self.label.setText('{0:02d} :'.format(self.timer_hour))                             
+        self.label.setText('{0:02d} :'.format(self.timer_hour))
         self.label_2.setText('{0:02d} :'.format(self.timer_min))
         self.label_3.setText('{0:02d}'.format(self.timer_sec))
-                                           
-        
-      
-    #цикл на высчитывание таймера, который запускаеться в отдельном 
-    #потоке    
+
+
+
+    #цикл на высчитывание таймера, который запускаеться в отдельном
+    #потоке
     def timerLoop(self):
 
+        self.start_btn_bl = True
+
         while (self.timer_started == True):
-  
-            #каждую секунду делаем инкремент к счетчику и эмитируем 
+
+            #каждую секунду делаем инкремент к счетчику и эмитируем
             #updateVal()
             time.sleep(1)
             if self.pause == False:
-                self.timer_sec = self.timer_sec + 1           
-                self.emit(QtCore.SIGNAL('updateVal()'))            
-            
+                self.timer_sec = self.timer_sec + 1
+                self.emit(QtCore.SIGNAL('updateVal()'))
+
             #если секнды переваливают за 60 добавляем единицу к минуте
             #а табло с секундами очищаем до нуля
             if (self.timer_sec == 60):
@@ -154,31 +160,35 @@ class Ui_Form(QtGui.QWidget):
             #а табло с минутами очищаем до нуля
             if (self.timer_min == 60):
                 self.timer_hour = self.timer_hour + 1
-                self.timer_min = 0  
-    
-    #пайза таймера
+                self.timer_min = 0
+
+
+
+    #пауза таймера
     def pauseTimer(self):
-        
+
         if self.pause == False:
             self.pause = True
-            
+
         else:
             self.pause = False
-            
+
     #остановка таймера
     def stopTimer(self):
-        
+
+        self.pause = False
+        self.timer_started = False
+        self.start_btn_bl = False
         self.label.setText('00 :')
         self.label_2.setText(' 00 :')
         self.label_3.setText(' 00')
-        self.pause = False
-        self.timer_started = False
-        
-        
+
+
+
 if __name__ == "__main__":
 
     app = QtGui.QApplication(sys.argv)
     window=Ui_Form()
     window.show()
-    app.exec_()        
+    app.exec_()
 
