@@ -53,6 +53,15 @@ class IndexFile():
         <head>
         <meta charset="UTF-8">
         <script src="myScript.js"></script>
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-49334817-2', 'auto');
+            ga('send', 'pageview');
+        </script>
         <style type="text/css">
             #wrapper {width: 700px; margin-left: auto;margin-right: auto; border: 1px solid black;
             padding-left:30px}
@@ -108,7 +117,7 @@ class IndexFile():
 
         self.f.write('''
 
-        <div id="footer"><a id='sau_link' target='_blank' href='https://www.facebook.com/andrew.sotnikov'>Andrew Sotnikov </a> ^ 2016 ^ </div>
+        <div id="footer"><a id='sau_link' target='_blank' href='https://www.facebook.com/andrew.sotnikov'>Andrew Sotnikov </a> ^ 2017 ^ </div>
         </div>
         </form>
         </body>
