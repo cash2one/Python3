@@ -261,7 +261,7 @@ class SendMail(Logs):
              http://poetry.progreso.com.ua\n
 
              created by Andrew Sotnikov\n
-             Hyper Logic Adjustable Mailer, 2016\n
+             Hyper Logic Adjustable Mailer, 2017\n
              '''.format(name,verse_data[1],' ',verse_data[2],' ',
               verse_data[3])
 
