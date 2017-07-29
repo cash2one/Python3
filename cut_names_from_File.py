@@ -4,7 +4,7 @@
 #        вырезая из имени файла заданный кусок.
          
 #        отступы табуляцией
-#        by Luca Brasi, e-mail: andruha.sota@mail.ru
+#        by Luca Brasi, e-mail: andrew.sotnikov@zoho.com
 #        --------------
 
 

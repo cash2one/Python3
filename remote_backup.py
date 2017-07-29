@@ -3,7 +3,7 @@
 
 #        отступы табуляцией
 #        by Andrew Sotnikov aka Luca Brasi,
-#        e-mail: andruha.sota@mail.ru
+#        e-mail: andrew.sotnikov@zoho.com
 #        --------------
 import os,saulog, time, shutil, sys
 from subprocess import call

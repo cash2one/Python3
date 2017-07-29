@@ -3,8 +3,10 @@
 #    Все эти манипуляции призваны для улучшения английского. Запускается файл 
 #    на проигрывание в фоновом режиме. По желанию сопровождается текстом.
 #
+#    	sudo apt-get install python3-tk
+#
 #    отступы табуляцией
-#    by Luca Brasi, e-mail: andruha.sota@mail.ru
+#    by Luca Brasi, e-mail: andrew.sotnikov@zoho.com
 #    --------------
 
 import subprocess, os, re, time, threading

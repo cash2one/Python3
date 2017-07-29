@@ -2,11 +2,14 @@
 
 #        отступы пробелами
 #        by Andrew Sotnikov aka Luca Brasi,
-#        e-mail: andruha.sota@mail.ru
+#        e-mail: andrew.sotnikov@zoho.com
 #        --------------
 #         Получает прокси со сторонних сайтов. Добавляет их MySQL базу, после,
 #         занимаеться поддержанием базы в актуальном состоянии.
 #         Для работы нужно создать MySQL db 'proxy'
+#
+#         Таке нужен CURL
+#               sudo apt-get install curl
 
 
 

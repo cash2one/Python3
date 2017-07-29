@@ -2,8 +2,13 @@
 
 #        отступы табуляцией
 #        by Andrew Sotnikov aka Luca Brasi,
-#        e-mail: andruha.sota@mail.ru
+#        e-mail: andrew.sotnikov@zoho.com
 #        --------------
+
+#      sudo apt-get install python3-pip
+#      sudo pip3 install PyMySQL
+#      sudo cp saumysql.py /usr/lib/python3/dist-packages/saumysql.py
+
 import  sys, pymysql
 
 class Crud():

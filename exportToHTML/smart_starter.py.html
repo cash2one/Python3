@@ -1,0 +1,249 @@
+<html>
+<head>
+<title>smart_starter.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #f8f8f2; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(117,113,94); }
+.s1 { color: rgb(248,248,242); }
+.s2 { color: rgb(102,217,239); font-style: italic; }
+.s3 { color: rgb(249,38,114); }
+.s4 { color: rgb(0,128,128); font-weight: bold; }
+.s5 { color: rgb(174,129,255); }
+</style>
+</head>
+<BODY BGCOLOR="#272822">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+smart_starter.py</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">#! /usr/bin/python3</span><span class="s1"> 
+ 
+</span><span class="s0">#        отступы табуляцией</span><span class="s1"> 
+</span><span class="s0">#        by Andrew Sotnikov aka Luca Brasi,</span><span class="s1"> 
+</span><span class="s0">#        e-mail: andrew.sotnikov@zoho.com</span><span class="s1"> 
+</span><span class="s0">#        --------------</span><span class="s1"> 
+ 
+</span><span class="s0">#    Внешний стартер. Хорош тем что запускает приложения которые имеют X Window.</span><span class="s1"> 
+ 
+ 
+</span><span class="s2">import </span><span class="s1">subprocess, time, threading, saulog, os.path, os 
+</span><span class="s2">from </span><span class="s1">saumysql </span><span class="s2">import </span><span class="s1">Crud 
+ 
+ 
+ 
+ 
+</span><span class="s2">class </span><span class="s1">Log</span><span class="s3">:</span><span class="s1"> 
+ 
+    logfile </span><span class="s3">= </span><span class="s4">'/var/log/andrew/smart_starter.log'</span><span class="s1"> 
+ 
+    </span><span class="s2">def </span><span class="s1">__init__(self)</span><span class="s3">:</span><span class="s1"> 
+ 
+ 
+            </span><span class="s0"># проверить старый ли файл лога. Если старый то молча удаляем</span><span class="s1"> 
+            f_time </span><span class="s3">= </span><span class="s1">os.path.getmtime(self.logfile) 
+            fcreated_day </span><span class="s3">= </span><span class="s1">time.localtime(f_time).tm_mday 
+            cur_day </span><span class="s3">= </span><span class="s1">time.localtime(time.time()).tm_mday 
+ 
+            </span><span class="s2">if </span><span class="s1">fcreated_day </span><span class="s3">!= </span><span class="s1">f_time</span><span class="s3">:</span><span class="s1"> 
+                os.remove(self.logfile) 
+                f </span><span class="s3">= </span><span class="s1">open(self.logfile,</span><span class="s4">'w'</span><span class="s1">) 
+                f.write(</span><span class="s4">'{0:#&lt;120}</span><span class="s5">\n</span><span class="s4">{1:#^120}</span><span class="s5">\n</span><span class="s4">{2:#&lt;120}</span><span class="s5">\n\n\n</span><span class="s4">'</span><span class="s1">.format(</span><span class="s4">''</span><span class="s1">, 
+                time.strftime(</span><span class="s4">'           %A           '</span><span class="s1">),</span><span class="s4">''</span><span class="s1">)) 
+                f.close() 
+ 
+ 
+ 
+ 
+ 
+</span><span class="s2">class </span><span class="s1">Preparing</span><span class="s3">:</span><span class="s1"> 
+ 
+    </span><span class="s2">def </span><span class="s1">__init__(self)</span><span class="s3">:</span><span class="s1"> 
+ 
+        crud</span><span class="s3">=</span><span class="s1">Crud(</span><span class="s4">'localhost'</span><span class="s1">,</span><span class="s4">'andrew'</span><span class="s1">,</span><span class="s4">'andrew'</span><span class="s1">,</span><span class="s4">'proxy'</span><span class="s1">) 
+        </span><span class="s0">#Проверить наличие shedule</span><span class="s1"> 
+        self.checkProxiesTable() 
+ 
+    </span><span class="s2">def </span><span class="s1">__del__(self)</span><span class="s3">:</span><span class="s1"> 
+ 
+        self.crud.closeConnection() 
+ 
+    </span><span class="s0">#Проверяет наличие таблицы с расписанием (shedule). Если ее нет, то создает.</span><span class="s1"> 
+    </span><span class="s0">#В противном случае проходит мимо</span><span class="s1"> 
+    </span><span class="s2">def </span><span class="s1">checkProxiesTable(self)</span><span class="s3">:</span><span class="s1"> 
+ 
+        self.crud</span><span class="s3">=</span><span class="s1">Crud(</span><span class="s4">'localhost'</span><span class="s1">,</span><span class="s4">'andrew'</span><span class="s1">,</span><span class="s4">'andrew'</span><span class="s1">,</span><span class="s4">'launcher'</span><span class="s1">) 
+        self.crud.sql</span><span class="s3">=</span><span class="s4">'SHOW TABLE STATUS LIKE </span><span class="s5">\'</span><span class="s4">shedule</span><span class="s5">\'</span><span class="s4">'</span><span class="s1"> 
+        result</span><span class="s3">=</span><span class="s1">self.crud.readAct() 
+ 
+        </span><span class="s0"># Таблицы нету, её прийдеться создать</span><span class="s1"> 
+        </span><span class="s2">if  </span><span class="s1">len(result) </span><span class="s3">== </span><span class="s5">0</span><span class="s3">:</span><span class="s1"> 
+            print(</span><span class="s4">'Нету таблицы ! Щас создадим'</span><span class="s1">) 
+ 
+            </span><span class="s0">#Cоздадим таблицу time_marks</span><span class="s1"> 
+            self.crud.sql</span><span class="s3">=</span><span class="s4">'''CREATE TABLE shedule ( 
+                             id INT AUTO_INCREMENT NOT NULL PRIMARY KEY, 
+                             cmd VARCHAR(300), 
+                             start_hour SMALLINT, 
+                             end_hour SMALLINT, 
+                             spacing INT, 
+                             is_launched SMALLINT, 
+                             launch_time INT );'''</span><span class="s1"> 
+            result</span><span class="s3">=</span><span class="s1">self.crud.createAct() 
+ 
+ 
+        </span><span class="s0">#В противном случае можно завязывать с этапом создания shedule</span><span class="s1"> 
+        </span><span class="s2">else </span><span class="s3">:</span><span class="s1"> 
+            print(</span><span class="s4">'shedule?! Походу есть такая таблица!'</span><span class="s1">) 
+ 
+</span><span class="s2">class </span><span class="s1">Task(Log)</span><span class="s3">:</span><span class="s1"> 
+ 
+ 
+    </span><span class="s2">def </span><span class="s1">__init__(self)</span><span class="s3">:</span><span class="s1"> 
+ 
+ 
+        Log.__init__(self) 
+ 
+        </span><span class="s0"># стартуем через 5 минут</span><span class="s1"> 
+        time.sleep(</span><span class="s5">300</span><span class="s1">) 
+     
+        self.refresh_interval </span><span class="s3">= </span><span class="s5">60</span><span class="s1"> 
+ 
+        </span><span class="s0"># инициализируем соединение к БД</span><span class="s1"> 
+        self.crud </span><span class="s3">= </span><span class="s1">Crud(</span><span class="s4">'localhost'</span><span class="s1">, </span><span class="s4">'andrew'</span><span class="s1">, </span><span class="s4">'andrew'</span><span class="s1">, </span><span class="s4">'launcher'</span><span class="s1">) 
+ 
+        </span><span class="s0"># Сделать выборку из shedule</span><span class="s1"> 
+        self.crud.sql </span><span class="s3">= </span><span class="s4">'SELECT * FROM shedule'</span><span class="s1"> 
+        res </span><span class="s3">= </span><span class="s1">self.crud.readAct() 
+        </span><span class="s0"># создай список программ для запуска</span><span class="s1"> 
+        self.tasks </span><span class="s3">= </span><span class="s1">[] 
+ 
+        self.stack </span><span class="s3">= </span><span class="s1">{} 
+        </span><span class="s0"># при инициализации приложения обнулим состояние запуска, время запуска.</span><span class="s1"> 
+        </span><span class="s0"># А то вдруг что подвисло</span><span class="s1"> 
+        </span><span class="s2">for </span><span class="s1">row </span><span class="s2">in </span><span class="s1">res</span><span class="s3">:</span><span class="s1"> 
+            self.crud.sql </span><span class="s3">= </span><span class="s4">'''UPDATE shedule SET is_launched='{0}', 
+                               launch_time='{1}' WHERE id='{2}' 
+                               '''</span><span class="s1">.format(</span><span class="s5">0</span><span class="s1">, round(time.time()</span><span class="s3">-</span><span class="s5">80400</span><span class="s1">), int(row[</span><span class="s5">0</span><span class="s1">])) 
+            self.crud.updateAct() 
+ 
+            </span><span class="s0"># инициализируем стек</span><span class="s1"> 
+            self.stack[row[</span><span class="s5">0</span><span class="s1">]] </span><span class="s3">= </span><span class="s1">[</span><span class="s5">0</span><span class="s1">,round(time.time()</span><span class="s3">-</span><span class="s5">86400</span><span class="s1">)] 
+ 
+ 
+        self.cur_time </span><span class="s3">= </span><span class="s1">round(time.time()) </span><span class="s0">#текущее время</span><span class="s1"> 
+        self.cur_hour </span><span class="s3">= </span><span class="s1">time.localtime(time.time()).tm_hour </span><span class="s0">#текущий час</span><span class="s1"> 
+        </span><span class="s0"># если текущий час перевалил за 12, то преобразуй его в 24. Так будет</span><span class="s1"> 
+        </span><span class="s0"># проще для расчетов</span><span class="s1"> 
+        </span><span class="s2">if </span><span class="s1">self.cur_hour </span><span class="s3">== </span><span class="s4">'00'</span><span class="s3">:</span><span class="s1"> 
+            self.cur_hour </span><span class="s3">= </span><span class="s5">24</span><span class="s1"> 
+            print(</span><span class="s4">'cur_hour преобразовано в 24'</span><span class="s1">) 
+ 
+        </span><span class="s0"># пока соединение нам больше не нужно</span><span class="s1"> 
+        self.crud.closeConnection() 
+ 
+        updateDB_thread </span><span class="s3">= </span><span class="s1">threading.Thread(target</span><span class="s3">=</span><span class="s1">self.updateDb) 
+        updateDB_thread.start() 
+ 
+ 
+        </span><span class="s2">while True</span><span class="s3">:</span><span class="s1"> 
+ 
+            </span><span class="s0"># инициализируем соединение к БД</span><span class="s1"> 
+            self.crud </span><span class="s3">= </span><span class="s1">Crud(</span><span class="s4">'localhost'</span><span class="s1">, </span><span class="s4">'andrew'</span><span class="s1">, </span><span class="s4">'andrew'</span><span class="s1">, </span><span class="s4">'launcher'</span><span class="s1">) 
+            </span><span class="s0"># Сделать выборку из shedule</span><span class="s1"> 
+            self.crud.sql </span><span class="s3">= </span><span class="s4">'SELECT * FROM shedule'</span><span class="s1"> 
+            res </span><span class="s3">= </span><span class="s1">self.crud.readAct() 
+            </span><span class="s0"># пока соединение нам больше не нужно</span><span class="s1"> 
+            self.crud.closeConnection() 
+ 
+            </span><span class="s2">for </span><span class="s1">task </span><span class="s2">in </span><span class="s1">res</span><span class="s3">:</span><span class="s1"> 
+                self.testPossibilty(task) 
+ 
+            time.sleep(self.refresh_interval) 
+            print(</span><span class="s4">'</span><span class="s5">\n\n\n</span><span class="s4">' </span><span class="s1">) 
+ 
+ 
+ 
+ 
+    </span><span class="s2">def </span><span class="s1">testPossibilty(self,task)</span><span class="s3">:</span><span class="s1"> 
+ 
+        id </span><span class="s3">= </span><span class="s1">task[</span><span class="s5">0</span><span class="s1">] 
+        cmd </span><span class="s3">= </span><span class="s1">task[</span><span class="s5">1</span><span class="s1">] </span><span class="s0">#команда для запуска</span><span class="s1"> 
+        </span><span class="s0">#    *** запуск происходит только если текущее время находиться</span><span class="s1"> 
+        </span><span class="s0">#    между earlier_hour и later_hour  ***</span><span class="s1"> 
+        earlier_hour </span><span class="s3">= </span><span class="s1">int(task[</span><span class="s5">2</span><span class="s1">]) </span><span class="s0">#время начала запуска cmd, если раньше этого</span><span class="s1"> 
+        </span><span class="s0"># теущее время меньше этого времени то запускать команду рано</span><span class="s1"> 
+        later_hour </span><span class="s3">= </span><span class="s1">int(task[</span><span class="s5">3</span><span class="s1">]) </span><span class="s0">#время конца запуска cmd. Действует противо-</span><span class="s1"> 
+        </span><span class="s0"># положно earlier_hour. Образует верхний предел времени.</span><span class="s1"> 
+ 
+        is_launched </span><span class="s3">= </span><span class="s1">int(task[</span><span class="s5">5</span><span class="s1">]) </span><span class="s0">#статус запуска</span><span class="s1"> 
+        launch_time </span><span class="s3">= </span><span class="s1">int(task[</span><span class="s5">6</span><span class="s1">]) </span><span class="s0">#время запуска</span><span class="s1"> 
+        </span><span class="s0"># сколько времени прошло с момента последнего запуска</span><span class="s1"> 
+        elapsed </span><span class="s3">=  </span><span class="s1">self.cur_time </span><span class="s3">- </span><span class="s1">int(launch_time) 
+        </span><span class="s2">if </span><span class="s1">(self.cur_hour </span><span class="s3">&gt;= </span><span class="s1">earlier_hour) </span><span class="s2">and </span><span class="s1">(self.cur_hour </span><span class="s3">&lt;= </span><span class="s1">later_hour)</span><span class="s3">:</span><span class="s1"> 
+            </span><span class="s2">if </span><span class="s1">(is_launched </span><span class="s3">== </span><span class="s5">0</span><span class="s1">) </span><span class="s2">and </span><span class="s1">(elapsed </span><span class="s3">&gt;= </span><span class="s1">task[</span><span class="s5">4</span><span class="s1">])</span><span class="s3">:</span><span class="s1"> 
+ 
+                </span><span class="s0"># print('Прошло времени {0:4}, а надо {1}'.format(elapsed, task[4]))</span><span class="s1"> 
+ 
+                self.tasks.append(threading.Thread(target</span><span class="s3">=</span><span class="s1">self.executeTask, 
+                                                       args</span><span class="s3">=</span><span class="s1">[cmd,id])) 
+                last_elem</span><span class="s3">=</span><span class="s1">len(self.tasks) </span><span class="s3">- </span><span class="s5">1</span><span class="s1"> 
+                self.tasks[last_elem].start() 
+ 
+            </span><span class="s2">else</span><span class="s3">:</span><span class="s1"> 
+ 
+                print(</span><span class="s4">'приложение уже {0} запущено, прийдеться '</span><span class="s1"> 
+                      </span><span class="s4">'подождать'</span><span class="s1">.format(cmd)) 
+ 
+ 
+        </span><span class="s2">else</span><span class="s3">:</span><span class="s1"> 
+            print(</span><span class="s4">'время для запуска {0} не подходящее. Нехер даже'</span><span class="s1"> 
+                  </span><span class="s4">' напрягаться.'</span><span class="s1">.format(cmd)) 
+        self.cur_time </span><span class="s3">= </span><span class="s1">round(time.time()) 
+ 
+ 
+ 
+ 
+    </span><span class="s2">def </span><span class="s1">updateDb(self)</span><span class="s3">:</span><span class="s1"> 
+ 
+        interval </span><span class="s3">= </span><span class="s5">5</span><span class="s1"> 
+ 
+        </span><span class="s2">while True</span><span class="s3">:</span><span class="s1"> 
+ 
+            crud </span><span class="s3">= </span><span class="s1">Crud(</span><span class="s4">'localhost'</span><span class="s1">, </span><span class="s4">'andrew'</span><span class="s1">, </span><span class="s4">'andrew'</span><span class="s1">, </span><span class="s4">'launcher'</span><span class="s1">) 
+ 
+            </span><span class="s2">for </span><span class="s1">key </span><span class="s2">in </span><span class="s1">self.stack.keys()</span><span class="s3">:</span><span class="s1"> 
+ 
+                crud.sql </span><span class="s3">= </span><span class="s4">'''UPDATE shedule SET is_launched=</span><span class="s5">\'</span><span class="s4">{0}</span><span class="s5">\'</span><span class="s4">, 
+                        launch_time=</span><span class="s5">\'</span><span class="s4">{1}</span><span class="s5">\'</span><span class="s4"> WHERE id=</span><span class="s5">\'</span><span class="s4">{2}</span><span class="s5">\'</span><span class="s4"> '''</span><span class="s1">.format( 
+                    self.stack[key][</span><span class="s5">0</span><span class="s1">], self.stack[key][</span><span class="s5">1</span><span class="s1">], key) 
+                crud.updateAct() 
+                </span><span class="s0"># print(crud.sql)</span><span class="s1"> 
+                </span><span class="s0"># print(time.localtime(self.stack[key][1]))</span><span class="s1"> 
+ 
+ 
+            crud.closeConnection() 
+            time.sleep(interval) 
+ 
+ 
+    </span><span class="s2">def </span><span class="s1">executeTask(self, cmd, id)</span><span class="s3">:</span><span class="s1"> 
+ 
+ 
+        saulog.WriteLog(self.logfile, </span><span class="s4">'Процесс {0} - запущен'</span><span class="s1">.format(cmd)) 
+        self.stack[id][</span><span class="s5">0</span><span class="s1">] </span><span class="s3">= </span><span class="s5">1</span><span class="s1"> 
+        self.stack[id][</span><span class="s5">1</span><span class="s1">] </span><span class="s3">= </span><span class="s1">round(time.time()) 
+        subprocess.call(</span><span class="s4">'{0}'</span><span class="s1">.format(cmd), shell</span><span class="s3">=</span><span class="s2">True</span><span class="s1">) 
+        print(</span><span class="s4">'процесс {0} запустился!'</span><span class="s1">.format(cmd)) 
+        self.stack[id][</span><span class="s5">0</span><span class="s1">] </span><span class="s3">= </span><span class="s5">0</span><span class="s1"> 
+        saulog.WriteLog(self.logfile, </span><span class="s4">'Процесс {0} закончил свое выполнение'</span><span class="s1">.format(cmd)) 
+ 
+ 
+</span><span class="s2">if </span><span class="s1">__name__ </span><span class="s3">== </span><span class="s4">&quot;__main__&quot;</span><span class="s3">:</span><span class="s1"> 
+ 
+    Preparing() 
+    Task() 
+</span></pre>
+</body>
+</html>

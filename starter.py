@@ -2,7 +2,7 @@
 
 #        отступы табуляцией
 #        by Andrew Sotniokv aka Luca Brasi, 
-#        e-mail: andruha.sota@mail.ru
+#        e-mail: andrew.sotnikov@zoho.com
 #        --------------
     
 #    Внешний стартер. Хорош тем что запускает приложения которые имеют X Window.

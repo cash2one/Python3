@@ -3,8 +3,9 @@
 
 #        отступы табуляцией
 #        by Andrew Sotnikov aka Luca Brasi,
-#        e-mail: andruha.sota@mail.ru
+#        e-mail: andrew.sotnikov@zoho.com
 #        --------------
+#        sudo cp saulog.py /usr/lib/python3/dist-packages/saulog.py
 
 import time
 

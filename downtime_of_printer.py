@@ -2,7 +2,7 @@
 
 #        отступы пробелами
 #        by Andrew Sotnikov aka Luca Brasi,
-#        e-mail: andruha.sota@mail.ru
+#        e-mail: andrew.sotnikov@zoho.com
 #        --------------
 #        Определяет дефолтный принтер и смотрит сколко дней прошло
 #        с последнего момента печати. Если больше 4ех дней посылает
@@ -19,7 +19,7 @@ from PyQt4 import QtGui, QtCore
 #     ################  ВАЖНО!  ##############
 #    Если при выводе:    
 #        lpstat -W completed
-#    сначала последняя печать идет в начале, удали строку 32 ( ls=ls.reverse()).
+#    сначала последняя печать идет в начале, удали строку 33 ( ls=ls.reverse()).
 #    Если последний сеанс печати в конце - ничего не трогай.
 
 class ReverseFile:
@@ -30,7 +30,7 @@ class ReverseFile:
         ls=[]
         for x in f1:
             ls.append(x)
-        ls=reversed(ls)
+#        ls=reversed(ls)
         for x in ls:
             f2.write(x)
 
@@ -42,7 +42,7 @@ class ReverseFile:
 
     def doJobList(self):
         os.chdir('/tmp/')
-        call('lpstat -W completed > 1', shell=True)
+        call('lpstat -W completed > 12561', shell=True)
 
 class getInfo():
 
@@ -66,15 +66,16 @@ class getInfo():
 
     def getPrLastDate(self):
         printer=self.getDefPrinter()
-        f2=open('/tmp/1')
+        f2=open('/tmp/12561')
         for x in f2:
             if (re.search(printer,x)) != None:
                 print(x)
                 break
+        f2.close()
         date=self.parseDate(x)
         self.getDifference(date)
 
-        f2.close()
+
 
     # Получает строку формата:
     # Canon_E464-114 andrew  18432 Пнд 01 Фев 2016 21:06:54
@@ -186,8 +187,9 @@ class DrawCritical(DrawWarning):
 
 if __name__ == "__main__":
 
-    a=ReverseFile('/tmp/1',replace=True)
+    a=ReverseFile('/tmp/12561',replace=True)
     b=getInfo()
+#    import pdb; pdb.set_trace()
     b.getPrLastDate()
     days=b.days
 

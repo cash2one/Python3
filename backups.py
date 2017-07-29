@@ -47,7 +47,7 @@ for string in f.readlines():
     mkMonthDir()
 
 
-    subprocess.call("tar -C "+path_source+ " -cvj -f"+ zipname +" "+ spl_str[2], shell=True)
+    subprocess.call("tar -C "+path_source+ " -h -cvj -f"+ zipname +" "+ spl_str[2], shell=True)
     res=subprocess.call("mv {0} {1}".format(zipname,full_path), shell=True)
 
     if res == 0:

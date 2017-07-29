@@ -9,7 +9,7 @@
 #       PyQT4
 
 #       wrote by:
-#            Andrew Sotnikov <andruha.sota@mail.ru> 2016
+#            Andrew Sotnikov <andrew.sotnikov@zoho.com> 2016
 #            aka Luca Brasi
 
 
